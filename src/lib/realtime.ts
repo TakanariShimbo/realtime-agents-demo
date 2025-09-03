@@ -20,7 +20,7 @@ export function createRealtimeSession({
   audioElement,
 }: ConnectOptions) {
   const agent = new RealtimeAgent({
-    name: "Web Realtime Demo",
+    name: "RealtimeAgent",
     instructions,
   });
 
