@@ -6,16 +6,15 @@ import { Field, Input, Textarea, Stack, Heading, NativeSelect, Button, HStack } 
 
 export type KeyFormValues = {
   apiKey: string;
-  model: (typeof REALTIME_MODELS)[number];
-  voice: (typeof REALTIME_VOICES)[number];
+  model: "" | (typeof REALTIME_MODELS)[number];
+  voice: "" | (typeof REALTIME_VOICES)[number];
   instructions: string;
-  vadMode: (typeof TURN_DETECTION_TYPES)[number];
-  // Optional VAD tuning
+  vadMode: "" | (typeof TURN_DETECTION_TYPES)[number];
   silenceDurationMs?: number;
   prefixPaddingMs?: number;
   idleTimeoutMs?: number;
   threshold?: number;
-  eagerness?: (typeof VAD_EAGERNESS)[number];
+  eagerness?: "" | (typeof VAD_EAGERNESS)[number];
 };
 
 export function KeyForm(props: {
@@ -53,6 +52,7 @@ export function KeyForm(props: {
         <Field.Label>Model</Field.Label>
         <NativeSelect.Root>
           <NativeSelect.Field value={model} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setModel(e.target.value as KeyFormValues["model"])}>
+            <option value="">Default</option>
             {REALTIME_MODELS.map((m) => (
               <option key={m} value={m}>
                 {m}
@@ -67,6 +67,7 @@ export function KeyForm(props: {
         <Field.Label>Voice</Field.Label>
         <NativeSelect.Root>
           <NativeSelect.Field value={voice} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setVoice(e.target.value as KeyFormValues["voice"])}>
+            <option value="">Default</option>
             {REALTIME_VOICES.map((v) => (
               <option key={v} value={v}>
                 {v}
@@ -86,6 +87,7 @@ export function KeyForm(props: {
         <Field.Label>VAD (Turn Detection)</Field.Label>
         <NativeSelect.Root>
           <NativeSelect.Field value={vadMode} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setVadMode(e.target.value as KeyFormValues["vadMode"])}>
+            <option value="">Default</option>
             {TURN_DETECTION_TYPES.map((t) => (
               <option key={t} value={t}>
                 {t}
@@ -100,7 +102,7 @@ export function KeyForm(props: {
         <Field.Label>VAD Eagerness</Field.Label>
         <NativeSelect.Root>
           <NativeSelect.Field value={eagerness ?? ""} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setEagerness(e.target.value as KeyFormValues["eagerness"])}>
-            <option value="">(auto)</option>
+            <option value="">Default</option>
             {VAD_EAGERNESS.map((e) => (
               <option key={e} value={e}>
                 {e}

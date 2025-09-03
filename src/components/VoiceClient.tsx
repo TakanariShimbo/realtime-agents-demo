@@ -2,38 +2,27 @@ import { useEffect, useRef, useState } from "react";
 import KeyForm, { type KeyFormValues } from "./KeyForm";
 import StatusDot from "./StatusDot";
 import { createRealtimeSession } from "../lib/realtime";
-import {
-  DEFAULT_REALTIME_MODEL,
-  DEFAULT_REALTIME_VOICE,
-  DEFAULT_TURN_DETECTION_TYPE,
-  DEFAULT_INSTRUCTIONS,
-  DEFAULT_VAD_SILENCE_MS,
-  DEFAULT_VAD_PREFIX_MS,
-  DEFAULT_VAD_THRESHOLD,
-  DEFAULT_VAD_EAGERNESS,
-  DEFAULT_VAD_IDLE_MS,
-} from "../lib/constants";
+import { DEFAULT_INSTRUCTIONS } from "../lib/constants";
 import { Box } from "@chakra-ui/react";
 import type { ConnectionStatus } from "../lib/constants";
-import { DEFAULT_CONNECTION_STATUS } from "../lib/constants";
 
 export default function VoiceClient() {
-  const [status, setStatus] = useState<ConnectionStatus>(DEFAULT_CONNECTION_STATUS);
+  const [status, setStatus] = useState<ConnectionStatus>("disconnected");
 
   const sessionRef = useRef<ReturnType<typeof createRealtimeSession> | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const initialForm: KeyFormValues = {
     apiKey: "",
-    model: DEFAULT_REALTIME_MODEL as KeyFormValues["model"],
-    voice: DEFAULT_REALTIME_VOICE as KeyFormValues["voice"],
+    model: "",
+    voice: "",
     instructions: DEFAULT_INSTRUCTIONS,
-    vadMode: DEFAULT_TURN_DETECTION_TYPE as KeyFormValues["vadMode"],
-    silenceDurationMs: DEFAULT_VAD_SILENCE_MS,
-    prefixPaddingMs: DEFAULT_VAD_PREFIX_MS,
-    idleTimeoutMs: DEFAULT_VAD_IDLE_MS,
-    threshold: DEFAULT_VAD_THRESHOLD,
-    eagerness: DEFAULT_VAD_EAGERNESS as KeyFormValues["eagerness"],
+    vadMode: "",
+    silenceDurationMs: undefined,
+    prefixPaddingMs: undefined,
+    idleTimeoutMs: undefined,
+    threshold: undefined,
+    eagerness: "",
   };
 
   useEffect(() => () => sessionRef.current?.session.close(), []);
@@ -45,15 +34,15 @@ export default function VoiceClient() {
 
       const created = createRealtimeSession({
         apiKey: v.apiKey,
-        model: v.model,
-        voice: v.voice,
-        instructions: v.instructions,
-        turnDetectionType: v.vadMode,
+        model: v.model || undefined,
+        voice: v.voice || undefined,
+        instructions: v.instructions || undefined,
+        turnDetectionType: v.vadMode || undefined,
         silenceDurationMs: v.silenceDurationMs,
         prefixPaddingMs: v.prefixPaddingMs,
         idleTimeoutMs: v.idleTimeoutMs,
         threshold: v.threshold,
-        eagerness: v.eagerness,
+        eagerness: (v.eagerness as any) || undefined,
         audioElement: audioRef.current,
       });
 

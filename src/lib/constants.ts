@@ -10,13 +10,4 @@ export type TurnDetectionType = (typeof TURN_DETECTION_TYPES)[number];
 export type ConnectionStatus = (typeof CONNECTION_STATUSES)[number];
 export type VadEagerness = (typeof VAD_EAGERNESS)[number];
 
-export const DEFAULT_REALTIME_MODEL: RealtimeModel = REALTIME_MODELS[0];
-export const DEFAULT_REALTIME_VOICE: RealtimeVoice = REALTIME_VOICES[0];
-export const DEFAULT_TURN_DETECTION_TYPE: TurnDetectionType = TURN_DETECTION_TYPES[0];
 export const DEFAULT_INSTRUCTIONS = "You are a helpful assistant. Speak in Japanese. Keep replies concise unless asked.";
-export const DEFAULT_CONNECTION_STATUS: ConnectionStatus = CONNECTION_STATUSES[0];
-export const DEFAULT_VAD_SILENCE_MS = 3000;
-export const DEFAULT_VAD_PREFIX_MS = 300;
-export const DEFAULT_VAD_THRESHOLD = 0.5;
-export const DEFAULT_VAD_EAGERNESS: VadEagerness = "low";
-export const DEFAULT_VAD_IDLE_MS = 30000;
