@@ -3,8 +3,6 @@ import { isValidApiKey } from '../lib/validation'
 
 export type KeyFormValues = {
   apiKey: string
-  model: string
-  transport: 'websocket' | 'webrtc'
   voice: string
 }
 
@@ -15,10 +13,6 @@ export function KeyForm(props: {
   connected?: boolean
 }) {
   const [apiKey, setApiKey] = useState(props.initial.apiKey)
-  const [model, setModel] = useState(props.initial.model)
-  const [transport, setTransport] = useState<KeyFormValues['transport']>(
-    props.initial.transport,
-  )
   const [voice, setVoice] = useState(props.initial.voice)
 
   const validKey = useMemo(() => isValidApiKey(apiKey), [apiKey])
@@ -42,48 +36,21 @@ export function KeyForm(props: {
           : 'sk-（通常キー）または ek_（エフェメラル）のキーを入力してください'}
       </div>
 
-      <div className="sectionTitle">Model / Transport</div>
+      <div className="sectionTitle">Voice</div>
       <div className="row">
-        <select value={model} onChange={(e) => setModel(e.target.value)}>
-          <option value="gpt-realtime">gpt-realtime</option>
-          <option value="gpt-4o-realtime-preview-2025-06-03">
-            gpt-4o-realtime-preview-2025-06-03
-          </option>
-          <option value="gpt-4o-realtime-preview-2024-12-17">
-            gpt-4o-realtime-preview-2024-12-17
-          </option>
-          <option value="gpt-4o-mini-realtime-preview-2024-12-17">
-            gpt-4o-mini-realtime-preview-2024-12-17
-          </option>
-        </select>
-        <select
-          value={transport}
-          onChange={(e) => setTransport(e.target.value as any)}
-        >
-          <option value="websocket">websocket (text only)</option>
-          <option value="webrtc">webrtc (voice + text)</option>
-        </select>
+        <input
+          type="text"
+          value={voice}
+          onChange={(e) => setVoice(e.target.value)}
+          placeholder="alloy | verse | aria など"
+        />
       </div>
-
-      {transport === 'webrtc' && (
-        <>
-          <div className="sectionTitle">Voice</div>
-          <div className="row">
-            <input
-              type="text"
-              value={voice}
-              onChange={(e) => setVoice(e.target.value)}
-              placeholder="alloy | verse | aria など"
-            />
-          </div>
-        </>
-      )}
 
       <div className="row mt8">
         <button
           className="primary"
           disabled={!canSubmit}
-          onClick={() => props.onConnect({ apiKey, model, transport, voice })}
+          onClick={() => props.onConnect({ apiKey, voice })}
         >
           {props.connecting ? 'Connecting...' : props.connected ? 'Reconnect' : 'Connect'}
         </button>

@@ -1,37 +1,21 @@
 import { useEffect, useRef, useState } from 'react'
 import './App.css'
 import { KeyForm, type KeyFormValues } from './components/KeyForm'
-import Chat from './components/Chat'
-import Composer from './components/Composer'
-import {
-  createRealtimeSession,
-  DEFAULT_MODEL,
-  itemsToUiMessages,
-  type UiMessage,
-} from './lib/realtime'
+import { createRealtimeSession, DEFAULT_MODEL } from './lib/realtime'
 
 type Status = 'disconnected' | 'connecting' | 'connected'
 
 function App() {
   const [status, setStatus] = useState<Status>('disconnected')
-  const [history, setHistory] = useState<UiMessage[]>([])
   const [error, setError] = useState<string | null>(null)
-  const [connectedInfo, setConnectedInfo] = useState<{
-    model: string
-    transport: 'websocket' | 'webrtc'
-  } | null>(null)
+  const [muted, setMuted] = useState(false)
 
   const sessionRef = useRef<ReturnType<typeof createRealtimeSession> | null>(
     null,
   )
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
-  const initialForm: KeyFormValues = {
-    apiKey: '',
-    model: DEFAULT_MODEL,
-    transport: 'websocket',
-    voice: 'alloy',
-  }
+  const initialForm: KeyFormValues = { apiKey: '', voice: 'alloy' }
 
   useEffect(() => {
     return () => {
@@ -49,52 +33,20 @@ function App() {
 
       const created = createRealtimeSession({
         apiKey: v.apiKey,
-        model: v.model,
-        transport: v.transport,
+        model: DEFAULT_MODEL,
         voice: v.voice,
-        audioElement: v.transport === 'webrtc' ? audioRef.current : null,
+        audioElement: audioRef.current,
       })
 
-      created.session.on('history_updated', (items) => {
-        setHistory(itemsToUiMessages(items))
-      })
-      created.session.on('error', (e) => {
-        setError(String(e.error ?? e))
-      })
+      created.session.on('error', (e) => setError(String(e.error ?? e)))
 
       try {
         await created.connect()
         sessionRef.current = created
         setStatus('connected')
-        setConnectedInfo({ model: v.model, transport: v.transport })
+        setMuted(false)
       } catch (err: any) {
-        // WebRTC SDP parse errors often mean the endpoint returned non-SDP (e.g. 401/HTML).
-        const msg = String(err?.message ?? err)
-        const sdpError = /setRemoteDescription|SessionDescription|Expect line: v=/.test(msg)
-        if (v.transport === 'webrtc' && sdpError) {
-          // auto-fallback to websocket (text only)
-          const fallback = createRealtimeSession({
-            apiKey: v.apiKey,
-            model: v.model,
-            transport: 'websocket',
-            voice: v.voice,
-          })
-          fallback.session.on('history_updated', (items) => {
-            setHistory(itemsToUiMessages(items))
-          })
-          fallback.session.on('error', (e) => {
-            setError(String(e.error ?? e))
-          })
-          await fallback.connect()
-          sessionRef.current = fallback
-          setStatus('connected')
-          setConnectedInfo({ model: v.model, transport: 'websocket' })
-          setError(
-            'WebRTC 交渉に失敗したため WebSocket にフォールバックしました。ブラウザから WebRTC を使う場合は、バックエンドでエフェメラルキーを発行してください。',
-          )
-        } else {
-          throw err
-        }
+        throw err
       }
     } catch (e: any) {
       console.error(e)
@@ -107,25 +59,22 @@ function App() {
     sessionRef.current?.session.close()
     sessionRef.current = null
     setStatus('disconnected')
-    setConnectedInfo(null)
-    setHistory([])
+    setMuted(false)
   }
 
-  function handleSend(text: string) {
-    sessionRef.current?.session.sendMessage(text)
+  const toggleMute = () => {
+    const next = !muted
+    setMuted(next)
+    sessionRef.current?.session.mute(next)
   }
 
-  function handleInterrupt() {
-    sessionRef.current?.session.interrupt()
-  }
-
-  const canChat = status === 'connected'
+  // voice-only
 
   return (
     <div className="app">
       <aside className="sidebar">
         <h2 style={{ margin: 0 }}>Realtime Demo</h2>
-        <div className="small">@openai/agents-realtime + React (frontend only)</div>
+        <div className="small">@openai/agents-realtime + WebRTC（音声のみ）</div>
         <div className="mt8">
           <KeyForm
             initial={initialForm}
@@ -138,31 +87,30 @@ function App() {
           <button onClick={handleDisconnect} disabled={status !== 'connected'}>
             Disconnect
           </button>
+          <button onClick={toggleMute} disabled={status !== 'connected'}>
+            {muted ? 'Unmute' : 'Mute'}
+          </button>
         </div>
-        {connectedInfo && (
-          <div className="mt8 small">
-            Connected via {connectedInfo.transport} · model {connectedInfo.model}
-          </div>
-        )}
         <audio ref={audioRef} autoPlay />
         {error && (
           <div className="mt8" style={{ color: '#ffb3b3' }}>
             Error: {error}
           </div>
         )}
-        <div className="mt8 small">
-          セキュリティ注意: デモのためブラウザから直接接続しています。必ず
-          本番ではサーバでエフェメラルキーを発行してください。
-        </div>
+        <div className="mt8 small">Connect 後に話しかけてください（自動 VAD）。</div>
       </aside>
 
       <main className="main">
-        <Chat messages={history} status={status} />
-        <Composer
-          disabled={!canChat}
-          onSend={handleSend}
-          onInterrupt={canChat ? handleInterrupt : undefined}
-        />
+        <div className="chat">
+          <div className="status mb8">
+            <span className={status === 'connected' ? 'dot ok' : status === 'connecting' ? 'dot warn' : 'dot'} />
+            <span>Session: {status}</span>
+          </div>
+          <div className="msg system">
+            音声のみの会話モード。接続後、マイクに向かって話しかけてください。
+          </div>
+          <div className="msg mt8 small">テキスト履歴は表示しません。</div>
+        </div>
       </main>
     </div>
   )
