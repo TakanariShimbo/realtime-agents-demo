@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import KeyForm, { type KeyFormValues } from "./KeyForm";
 import StatusDot, { type Status } from "./StatusDot";
 import ConnectionControls from "./ConnectionControls";
-import { createRealtimeSession, DEFAULT_MODEL } from "../lib/realtime";
+import { createRealtimeSession } from "../lib/realtime";
+import { DEFAULT_REALTIME_MODEL, DEFAULT_REALTIME_VOICE, DEFAULT_TURN_DETECTION_TYPE, DEFAULT_INSTRUCTIONS } from "../lib/constants";
 import { Box } from "@chakra-ui/react";
 
 export default function VoiceClient() {
@@ -14,10 +15,10 @@ export default function VoiceClient() {
 
   const initialForm: KeyFormValues = {
     apiKey: "",
-    model: DEFAULT_MODEL,
-    voice: "alloy",
-    instructions: "You are a helpful assistant. Keep replies concise unless asked.",
-    vadMode: "server_vad",
+    model: DEFAULT_REALTIME_MODEL as KeyFormValues["model"],
+    voice: DEFAULT_REALTIME_VOICE,
+    instructions: DEFAULT_INSTRUCTIONS,
+    vadMode: DEFAULT_TURN_DETECTION_TYPE,
   };
 
   useEffect(() => () => sessionRef.current?.session.close(), []);
@@ -29,7 +30,7 @@ export default function VoiceClient() {
 
       const created = createRealtimeSession({
         apiKey: v.apiKey,
-        model: v.model || DEFAULT_MODEL,
+        model: v.model,
         voice: v.voice,
         instructions: v.instructions,
         turnDetectionType: v.vadMode,

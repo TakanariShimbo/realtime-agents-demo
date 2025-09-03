@@ -1,6 +1,7 @@
+import type React from "react";
 import { useMemo, useState } from "react";
 import { isValidApiKey } from "../lib/validation";
-import { REALTIME_MODELS, REALTIME_VOICES } from "../lib/constants";
+import { REALTIME_MODELS, REALTIME_VOICES, TURN_DETECTION_TYPES } from "../lib/constants";
 import {
   Field,
   Input,
@@ -13,10 +14,10 @@ import {
 
 export type KeyFormValues = {
   apiKey: string;
-  model: string;
-  voice: string;
+  model: typeof REALTIME_MODELS[number];
+  voice: typeof REALTIME_VOICES[number];
   instructions: string;
-  vadMode: "server_vad" | "semantic_vad";
+  vadMode: (typeof TURN_DETECTION_TYPES)[number];
 };
 
 export function KeyForm(props: { initial: KeyFormValues; onConnect: (vals: KeyFormValues) => void; connecting?: boolean; connected?: boolean }) {
@@ -42,7 +43,7 @@ export function KeyForm(props: { initial: KeyFormValues; onConnect: (vals: KeyFo
       <Field.Root>
         <Field.Label>Model</Field.Label>
         <NativeSelect.Root>
-          <NativeSelect.Field value={model} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setModel(e.target.value)}>
+          <NativeSelect.Field value={model} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setModel(e.target.value as KeyFormValues["model"])}>
             {REALTIME_MODELS.map((m) => (
               <option key={m} value={m}>{m}</option>
             ))}
@@ -54,7 +55,7 @@ export function KeyForm(props: { initial: KeyFormValues; onConnect: (vals: KeyFo
       <Field.Root>
         <Field.Label>Voice</Field.Label>
         <NativeSelect.Root>
-          <NativeSelect.Field value={voice} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setVoice(e.target.value)}>
+          <NativeSelect.Field value={voice} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setVoice(e.target.value as KeyFormValues["voice"])}>
             {REALTIME_VOICES.map((v) => (
               <option key={v} value={v}>{v}</option>
             ))}
@@ -72,8 +73,9 @@ export function KeyForm(props: { initial: KeyFormValues; onConnect: (vals: KeyFo
         <Field.Label>VAD (Turn Detection)</Field.Label>
         <NativeSelect.Root>
           <NativeSelect.Field value={vadMode} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setVadMode(e.target.value as KeyFormValues["vadMode"]) }>
-            <option value="server_vad">server_vad (default)</option>
-            <option value="semantic_vad">semantic_vad</option>
+            {TURN_DETECTION_TYPES.map((t) => (
+              <option key={t} value={t}>{t}</option>
+            ))}
           </NativeSelect.Field>
           <NativeSelect.Indicator />
         </NativeSelect.Root>

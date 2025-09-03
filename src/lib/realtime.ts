@@ -1,44 +1,49 @@
-import { DEFAULT_OPENAI_REALTIME_MODEL, OpenAIRealtimeWebRTC, RealtimeAgent, RealtimeSession } from "@openai/agents-realtime";
+import { OpenAIRealtimeWebRTC, RealtimeAgent, RealtimeSession } from "@openai/agents-realtime";
+import type { RealtimeModel, RealtimeVoice, TurnDetectionType } from "./constants";
+import { DEFAULT_INSTRUCTIONS, DEFAULT_REALTIME_MODEL, DEFAULT_REALTIME_VOICE, DEFAULT_TURN_DETECTION_TYPE } from "./constants";
 
 export type ConnectOptions = {
   apiKey: string;
-  model?: string;
-  voice?: string;
+  model?: RealtimeModel;
+  voice?: RealtimeVoice;
   instructions?: string;
-  // VAD mode for turn detection. See OpenAI Realtime docs.
-  turnDetectionType?: "server_vad" | "semantic_vad";
+  turnDetectionType?: TurnDetectionType;
   audioElement?: HTMLAudioElement | null;
 };
 
-export const DEFAULT_MODEL = DEFAULT_OPENAI_REALTIME_MODEL;
-
-export function createRealtimeSession(opts: ConnectOptions) {
+export function createRealtimeSession({
+  apiKey,
+  model = DEFAULT_REALTIME_MODEL as RealtimeModel,
+  voice = DEFAULT_REALTIME_VOICE as RealtimeVoice,
+  instructions = DEFAULT_INSTRUCTIONS,
+  turnDetectionType = DEFAULT_TURN_DETECTION_TYPE,
+  audioElement,
+}: ConnectOptions) {
   const agent = new RealtimeAgent({
     name: "Web Realtime Demo",
-    instructions: opts.instructions ?? "You are a helpful assistant. Keep replies concise unless asked.",
+    instructions,
   });
 
   const transport = new OpenAIRealtimeWebRTC({
-    // Use the GA WebRTC endpoint. Model is set via session/transport config, not URL.
-    baseUrl: `https://api.openai.com/v1/realtime/calls`,
+    baseUrl: `https://api.openai.com/v1/realtime/calls?model=${encodeURIComponent(model)}`,
     useInsecureApiKey: true,
-    audioElement: opts.audioElement ?? undefined,
+    audioElement: audioElement ?? undefined,
   });
 
   const session = new RealtimeSession(agent, {
     transport,
-    model: (opts.model ?? DEFAULT_MODEL) as any,
+    model,
     config: {
       outputModalities: ["audio"],
       audio: {
         input: {
           turnDetection: {
-            type: opts.turnDetectionType ?? "server_vad",
+            type: turnDetectionType,
             createResponse: true,
             interruptResponse: true,
           },
         },
-        output: { voice: opts.voice },
+        output: { voice },
       },
     },
   });
@@ -47,7 +52,7 @@ export function createRealtimeSession(opts: ConnectOptions) {
     session,
     connect: async () => {
       await session.connect({
-        apiKey: opts.apiKey,
+        apiKey,
       });
     },
   };
