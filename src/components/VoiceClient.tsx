@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import KeyForm, { type KeyFormValues } from "./KeyForm";
-import StatusDot, { type Status } from "./StatusDot";
+import StatusDot from "./StatusDot";
 import ConnectionControls from "./ConnectionControls";
 import { createRealtimeSession } from "../lib/realtime";
 import { DEFAULT_REALTIME_MODEL, DEFAULT_REALTIME_VOICE, DEFAULT_TURN_DETECTION_TYPE, DEFAULT_INSTRUCTIONS } from "../lib/constants";
 import { Box } from "@chakra-ui/react";
+import type { ConnectionStatus } from "../lib/constants";
+import { DEFAULT_CONNECTION_STATUS } from "../lib/constants";
 
 export default function VoiceClient() {
-  const [status, setStatus] = useState<Status>("disconnected");
+  const [status, setStatus] = useState<ConnectionStatus>(DEFAULT_CONNECTION_STATUS);
   const [muted, setMuted] = useState(false);
 
   const sessionRef = useRef<ReturnType<typeof createRealtimeSession> | null>(null);

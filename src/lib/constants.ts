@@ -12,3 +12,7 @@ export const DEFAULT_REALTIME_MODEL: RealtimeModel = REALTIME_MODELS[0];
 export const DEFAULT_REALTIME_VOICE: RealtimeVoice = REALTIME_VOICES[0];
 export const DEFAULT_TURN_DETECTION_TYPE: TurnDetectionType = TURN_DETECTION_TYPES[0];
 export const DEFAULT_INSTRUCTIONS = "You are a helpful assistant. Keep replies concise unless asked.";
+
+export const CONNECTION_STATUSES = ["disconnected", "connecting", "connected"] as const;
+export type ConnectionStatus = (typeof CONNECTION_STATUSES)[number];
+export const DEFAULT_CONNECTION_STATUS: ConnectionStatus = CONNECTION_STATUSES[0];

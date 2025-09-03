@@ -1,8 +1,7 @@
 import { HStack, Circle, Text } from "@chakra-ui/react";
+import type { ConnectionStatus } from "../lib/constants";
 
-export type Status = "disconnected" | "connecting" | "connected";
-
-export default function StatusDot({ status }: { status: Status }) {
+export default function StatusDot({ status }: { status: ConnectionStatus }) {
   const color = status === "connected" ? "green.400" : status === "connecting" ? "orange.400" : "gray.400";
   return (
     <HStack gap={2} color="gray.500" fontSize="sm">
