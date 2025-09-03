@@ -5,6 +5,8 @@ export type ConnectOptions = {
   model?: string;
   voice?: string;
   instructions?: string;
+  // VAD mode for turn detection. See OpenAI Realtime docs.
+  turnDetectionType?: "server_vad" | "semantic_vad";
   audioElement?: HTMLAudioElement | null;
 };
 
@@ -17,16 +19,27 @@ export function createRealtimeSession(opts: ConnectOptions) {
   });
 
   const transport = new OpenAIRealtimeWebRTC({
-    baseUrl: `https://api.openai.com/v1/realtime?model=${encodeURIComponent(opts.model ?? DEFAULT_MODEL)}`,
+    // Use the GA WebRTC endpoint. Model is set via session/transport config, not URL.
+    baseUrl: `https://api.openai.com/v1/realtime/calls`,
     useInsecureApiKey: true,
     audioElement: opts.audioElement ?? undefined,
   });
 
   const session = new RealtimeSession(agent, {
     transport,
+    model: (opts.model ?? DEFAULT_MODEL) as any,
     config: {
       outputModalities: ["audio"],
-      audio: { output: { voice: opts.voice } },
+      audio: {
+        input: {
+          turnDetection: {
+            type: opts.turnDetectionType ?? "server_vad",
+            createResponse: true,
+            interruptResponse: true,
+          },
+        },
+        output: { voice: opts.voice },
+      },
     },
   });
 
@@ -35,7 +48,6 @@ export function createRealtimeSession(opts: ConnectOptions) {
     connect: async () => {
       await session.connect({
         apiKey: opts.apiKey,
-        model: opts.model ?? DEFAULT_MODEL,
       });
     },
   };

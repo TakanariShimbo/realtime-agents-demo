@@ -3,6 +3,7 @@ import KeyForm, { type KeyFormValues } from "./KeyForm";
 import StatusDot, { type Status } from "./StatusDot";
 import ConnectionControls from "./ConnectionControls";
 import { createRealtimeSession, DEFAULT_MODEL } from "../lib/realtime";
+import { Box } from "@chakra-ui/react";
 
 export default function VoiceClient() {
   const [status, setStatus] = useState<Status>("disconnected");
@@ -11,7 +12,13 @@ export default function VoiceClient() {
   const sessionRef = useRef<ReturnType<typeof createRealtimeSession> | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const initialForm: KeyFormValues = { apiKey: "", voice: "alloy" };
+  const initialForm: KeyFormValues = {
+    apiKey: "",
+    model: DEFAULT_MODEL,
+    voice: "alloy",
+    instructions: "You are a helpful assistant. Keep replies concise unless asked.",
+    vadMode: "server_vad",
+  };
 
   useEffect(() => () => sessionRef.current?.session.close(), []);
 
@@ -22,8 +29,10 @@ export default function VoiceClient() {
 
       const created = createRealtimeSession({
         apiKey: v.apiKey,
-        model: DEFAULT_MODEL,
+        model: v.model || DEFAULT_MODEL,
         voice: v.voice,
+        instructions: v.instructions,
+        turnDetectionType: v.vadMode,
         audioElement: audioRef.current,
       });
 
@@ -55,16 +64,15 @@ export default function VoiceClient() {
   }
 
   return (
-    <>
-      <h2 style={{ margin: 0 }}>Realtime Demo</h2>
-      <div className="mt8">
+    <Box>
+      <Box mt={2}>
         <StatusDot status={status} />
-      </div>
-      <div className="mt8">
+      </Box>
+      <Box mt={4}>
         <KeyForm initial={initialForm} onConnect={handleConnect} connecting={status === "connecting"} connected={status === "connected"} />
-      </div>
+      </Box>
       <ConnectionControls connected={status === "connected"} muted={muted} onDisconnect={handleDisconnect} onToggleMute={handleToggleMute} />
       <audio ref={audioRef} autoPlay />
-    </>
+    </Box>
   );
 }

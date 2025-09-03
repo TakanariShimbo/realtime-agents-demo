@@ -1,37 +1,88 @@
 import { useMemo, useState } from "react";
 import { isValidApiKey } from "../lib/validation";
+import { REALTIME_MODELS, REALTIME_VOICES } from "../lib/constants";
+import {
+  Field,
+  Input,
+  Textarea,
+  Button,
+  Stack,
+  Heading,
+  NativeSelect,
+} from "@chakra-ui/react";
 
 export type KeyFormValues = {
   apiKey: string;
+  model: string;
   voice: string;
+  instructions: string;
+  vadMode: "server_vad" | "semantic_vad";
 };
 
 export function KeyForm(props: { initial: KeyFormValues; onConnect: (vals: KeyFormValues) => void; connecting?: boolean; connected?: boolean }) {
   const [apiKey, setApiKey] = useState(props.initial.apiKey);
+  const [model, setModel] = useState(props.initial.model);
   const [voice, setVoice] = useState(props.initial.voice);
+  const [instructions, setInstructions] = useState(props.initial.instructions);
+  const [vadMode, setVadMode] = useState<KeyFormValues["vadMode"]>(props.initial.vadMode);
 
   const validKey = useMemo(() => isValidApiKey(apiKey), [apiKey]);
   const canSubmit = validKey && !props.connecting;
 
   return (
-    <div>
-      <div className="sectionTitle">OpenAI API Key</div>
-      <div className="row">
-        <input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="sk-..." autoComplete="off" />
-      </div>
-      <div className="hint small">{validKey ? "APIキーがセットされています" : "APIキーを入力してください"}</div>
+    <Stack gap={4}>
+      <Heading size="md">Realtime Demo</Heading>
 
-      <div className="sectionTitle">Voice</div>
-      <div className="row">
-        <input type="text" value={voice} onChange={(e) => setVoice(e.target.value)} placeholder="alloy | verse | aria など" />
-      </div>
+      <Field.Root>
+        <Field.Label>OpenAI API Key</Field.Label>
+        <Input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="sk-..." autoComplete="off" />
+        <Field.HelperText>{validKey ? "APIキーがセットされています" : "APIキーを入力してください"}</Field.HelperText>
+      </Field.Root>
 
-      <div className="row mt8">
-        <button className="primary" disabled={!canSubmit} onClick={() => props.onConnect({ apiKey, voice })}>
-          {props.connecting ? "Connecting..." : props.connected ? "Reconnect" : "Connect"}
-        </button>
-      </div>
-    </div>
+      <Field.Root>
+        <Field.Label>Model</Field.Label>
+        <NativeSelect.Root>
+          <NativeSelect.Field value={model} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setModel(e.target.value)}>
+            {REALTIME_MODELS.map((m) => (
+              <option key={m} value={m}>{m}</option>
+            ))}
+          </NativeSelect.Field>
+          <NativeSelect.Indicator />
+        </NativeSelect.Root>
+      </Field.Root>
+
+      <Field.Root>
+        <Field.Label>Voice</Field.Label>
+        <NativeSelect.Root>
+          <NativeSelect.Field value={voice} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setVoice(e.target.value)}>
+            {REALTIME_VOICES.map((v) => (
+              <option key={v} value={v}>{v}</option>
+            ))}
+          </NativeSelect.Field>
+          <NativeSelect.Indicator />
+        </NativeSelect.Root>
+      </Field.Root>
+
+      <Field.Root>
+        <Field.Label>Instructions</Field.Label>
+        <Textarea value={instructions} onChange={(e) => setInstructions(e.target.value)} placeholder="Assistant behavior (日本語可)" />
+      </Field.Root>
+
+      <Field.Root>
+        <Field.Label>VAD (Turn Detection)</Field.Label>
+        <NativeSelect.Root>
+          <NativeSelect.Field value={vadMode} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setVadMode(e.target.value as KeyFormValues["vadMode"]) }>
+            <option value="server_vad">server_vad (default)</option>
+            <option value="semantic_vad">semantic_vad</option>
+          </NativeSelect.Field>
+          <NativeSelect.Indicator />
+        </NativeSelect.Root>
+      </Field.Root>
+
+      <Button colorPalette="blue" disabled={!canSubmit} onClick={() => props.onConnect({ apiKey, model, voice, instructions, vadMode })}>
+        {props.connecting ? "Connecting..." : props.connected ? "Reconnect" : "Connect"}
+      </Button>
+    </Stack>
   );
 }
 
