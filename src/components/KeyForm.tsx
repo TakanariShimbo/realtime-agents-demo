@@ -26,8 +26,8 @@ export function KeyForm(props: {
   connected?: boolean;
 }) {
   const [apiKey, setApiKey] = useState(props.initial.apiKey);
-  const [model, setModel] = useState(props.initial.model);
-  const [voice, setVoice] = useState(props.initial.voice);
+  const [model, setModel] = useState<KeyFormValues["model"]>(props.initial.model);
+  const [voice, setVoice] = useState<KeyFormValues["voice"]>(props.initial.voice);
   const [instructions, setInstructions] = useState(props.initial.instructions);
   const [vadMode, setVadMode] = useState<KeyFormValues["vadMode"]>(props.initial.vadMode);
   const [silenceMs, setSilenceMs] = useState<number | undefined>(props.initial.silenceDurationMs);

@@ -2,7 +2,17 @@ import { useEffect, useRef, useState } from "react";
 import KeyForm, { type KeyFormValues } from "./KeyForm";
 import StatusDot from "./StatusDot";
 import { createRealtimeSession } from "../lib/realtime";
-import { DEFAULT_REALTIME_MODEL, DEFAULT_REALTIME_VOICE, DEFAULT_TURN_DETECTION_TYPE, DEFAULT_INSTRUCTIONS } from "../lib/constants";
+import {
+  DEFAULT_REALTIME_MODEL,
+  DEFAULT_REALTIME_VOICE,
+  DEFAULT_TURN_DETECTION_TYPE,
+  DEFAULT_INSTRUCTIONS,
+  DEFAULT_VAD_SILENCE_MS,
+  DEFAULT_VAD_PREFIX_MS,
+  DEFAULT_VAD_THRESHOLD,
+  DEFAULT_VAD_EAGERNESS,
+  DEFAULT_VAD_IDLE_MS,
+} from "../lib/constants";
 import { Box } from "@chakra-ui/react";
 import type { ConnectionStatus } from "../lib/constants";
 import { DEFAULT_CONNECTION_STATUS } from "../lib/constants";
@@ -16,14 +26,14 @@ export default function VoiceClient() {
   const initialForm: KeyFormValues = {
     apiKey: "",
     model: DEFAULT_REALTIME_MODEL as KeyFormValues["model"],
-    voice: DEFAULT_REALTIME_VOICE,
+    voice: DEFAULT_REALTIME_VOICE as KeyFormValues["voice"],
     instructions: DEFAULT_INSTRUCTIONS,
-    vadMode: DEFAULT_TURN_DETECTION_TYPE,
-    silenceDurationMs: undefined,
-    prefixPaddingMs: undefined,
-    idleTimeoutMs: undefined,
-    threshold: undefined,
-    eagerness: undefined,
+    vadMode: DEFAULT_TURN_DETECTION_TYPE as KeyFormValues["vadMode"],
+    silenceDurationMs: DEFAULT_VAD_SILENCE_MS,
+    prefixPaddingMs: DEFAULT_VAD_PREFIX_MS,
+    idleTimeoutMs: DEFAULT_VAD_IDLE_MS,
+    threshold: DEFAULT_VAD_THRESHOLD,
+    eagerness: DEFAULT_VAD_EAGERNESS as KeyFormValues["eagerness"],
   };
 
   useEffect(() => () => sessionRef.current?.session.close(), []);
