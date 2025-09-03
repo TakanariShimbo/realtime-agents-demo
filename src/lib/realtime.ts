@@ -1,9 +1,10 @@
 import { OpenAIRealtimeWebRTC, RealtimeAgent, RealtimeSession, DEFAULT_OPENAI_REALTIME_MODEL } from "@openai/agents-realtime";
-import type { RealtimeModel, RealtimeVoice, TurnDetectionType, VadEagerness } from "./constants";
+import type { ConversationModel, RealtimeVoice, TurnDetectionType, VadEagerness, TranscriptionModel } from "./constants";
 
 export type ConnectOptions = {
   apiKey: string;
-  model?: RealtimeModel;
+  conversationModel?: ConversationModel;
+  transcriptionModel?: TranscriptionModel;
   voice?: RealtimeVoice;
   instructions?: string;
   turnDetectionType?: TurnDetectionType;
@@ -17,7 +18,8 @@ export type ConnectOptions = {
 
 export function createRealtimeSession({
   apiKey,
-  model,
+  conversationModel,
+  transcriptionModel,
   voice,
   instructions,
   turnDetectionType,
@@ -33,18 +35,18 @@ export function createRealtimeSession({
   if (voice) agentConfig.voice = voice;
   const agent = new RealtimeAgent(agentConfig);
 
-  const effectiveModel = (model ?? (DEFAULT_OPENAI_REALTIME_MODEL as string));
+  const effectiveConversationModel = conversationModel ?? (DEFAULT_OPENAI_REALTIME_MODEL as string);
   const transport = new OpenAIRealtimeWebRTC({
-    baseUrl: `https://api.openai.com/v1/realtime/calls?model=${encodeURIComponent(effectiveModel)}`,
+    baseUrl: `https://api.openai.com/v1/realtime/calls?model=${encodeURIComponent(effectiveConversationModel)}`,
     useInsecureApiKey: true,
     audioElement: audioElement ?? undefined,
   });
 
   const session = new RealtimeSession(agent, {
     transport,
-    model: effectiveModel as any,
+    model: effectiveConversationModel as any,
     config: {
-      outputModalities: ["audio"],
+      modalities: ["audio", "text"],
       audio: {
         input: (() => {
           const td: any = {};
@@ -54,7 +56,11 @@ export function createRealtimeSession({
           if (typeof idleTimeoutMs === "number") td.idleTimeoutMs = idleTimeoutMs;
           if (typeof threshold === "number") td.threshold = threshold;
           if (eagerness) td.eagerness = eagerness;
-          return Object.keys(td).length > 0 ? { turnDetection: td } : {};
+          const inputCfg: any = {
+            transcription: { language: "ja", ...(transcriptionModel ? { model: transcriptionModel } : {}) },
+          };
+          if (Object.keys(td).length > 0) inputCfg.turnDetection = td;
+          return inputCfg;
         })(),
         output: (() => {
           const out: any = { format: { type: "audio/pcm", rate: 24000 } };

@@ -14,7 +14,8 @@ export default function VoiceClient() {
 
   const initialForm: KeyFormValues = {
     apiKey: "",
-    model: "",
+    conversationModel: "",
+    transcriptionModel: "",
     voice: "",
     instructions: DEFAULT_INSTRUCTIONS,
     vadMode: "",
@@ -34,7 +35,8 @@ export default function VoiceClient() {
 
       const created = createRealtimeSession({
         apiKey: v.apiKey,
-        model: v.model || undefined,
+        conversationModel: v.conversationModel || undefined,
+        transcriptionModel: v.transcriptionModel || undefined,
         voice: v.voice || undefined,
         instructions: v.instructions || undefined,
         turnDetectionType: v.vadMode || undefined,

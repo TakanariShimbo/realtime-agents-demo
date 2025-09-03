@@ -1,12 +1,13 @@
 import type React from "react";
 import { useMemo, useState } from "react";
 import { isValidApiKey } from "../lib/validation";
-import { REALTIME_MODELS, REALTIME_VOICES, TURN_DETECTION_TYPES, VAD_EAGERNESS } from "../lib/constants";
+import { CONVERSATION_MODELS, TRANSCRIPTION_MODELS, REALTIME_VOICES, TURN_DETECTION_TYPES, VAD_EAGERNESS } from "../lib/constants";
 import { Field, Input, Textarea, Stack, Heading, NativeSelect, Button, HStack } from "@chakra-ui/react";
 
 export type KeyFormValues = {
   apiKey: string;
-  model: "" | (typeof REALTIME_MODELS)[number];
+  conversationModel: "" | (typeof CONVERSATION_MODELS)[number];
+  transcriptionModel: "" | (typeof TRANSCRIPTION_MODELS)[number];
   voice: "" | (typeof REALTIME_VOICES)[number];
   instructions: string;
   vadMode: "" | (typeof TURN_DETECTION_TYPES)[number];
@@ -25,7 +26,8 @@ export function KeyForm(props: {
   connected?: boolean;
 }) {
   const [apiKey, setApiKey] = useState(props.initial.apiKey);
-  const [model, setModel] = useState<KeyFormValues["model"]>(props.initial.model);
+  const [conversationModel, setConversationModel] = useState<KeyFormValues["conversationModel"]>(props.initial.conversationModel);
+  const [transcriptionModel, setTranscriptionModel] = useState<KeyFormValues["transcriptionModel"]>(props.initial.transcriptionModel);
   const [voice, setVoice] = useState<KeyFormValues["voice"]>(props.initial.voice);
   const [instructions, setInstructions] = useState(props.initial.instructions);
   const [vadMode, setVadMode] = useState<KeyFormValues["vadMode"]>(props.initial.vadMode);
@@ -49,11 +51,32 @@ export function KeyForm(props: {
       </Field.Root>
 
       <Field.Root>
-        <Field.Label>Model</Field.Label>
+        <Field.Label>Conversation Model</Field.Label>
         <NativeSelect.Root>
-          <NativeSelect.Field value={model} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setModel(e.target.value as KeyFormValues["model"])}>
+          <NativeSelect.Field
+            value={conversationModel}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setConversationModel(e.target.value as KeyFormValues["conversationModel"])}
+          >
             <option value="">Default</option>
-            {REALTIME_MODELS.map((m) => (
+            {CONVERSATION_MODELS.map((m) => (
+              <option key={m} value={m}>
+                {m}
+              </option>
+            ))}
+          </NativeSelect.Field>
+          <NativeSelect.Indicator />
+        </NativeSelect.Root>
+      </Field.Root>
+
+      <Field.Root>
+        <Field.Label>Transcription Model</Field.Label>
+        <NativeSelect.Root>
+          <NativeSelect.Field
+            value={transcriptionModel}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setTranscriptionModel(e.target.value as KeyFormValues["transcriptionModel"])}
+          >
+            <option value="">Default</option>
+            {TRANSCRIPTION_MODELS.map((m) => (
               <option key={m} value={m}>
                 {m}
               </option>
@@ -157,7 +180,19 @@ export function KeyForm(props: {
             if (props.connected) {
               props.onDisconnect();
             } else if (canSubmit) {
-              props.onConnect({ apiKey, model, voice, instructions, vadMode });
+              props.onConnect({
+                apiKey,
+                conversationModel,
+                transcriptionModel,
+                voice,
+                instructions,
+                vadMode,
+                silenceDurationMs: silenceMs,
+                prefixPaddingMs: prefixMs,
+                idleTimeoutMs: idleMs,
+                threshold,
+                eagerness,
+              });
             }
           }}
         >
