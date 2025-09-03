@@ -1,4 +1,4 @@
-export const REALTIME_VOICES = ["alloy", "echo", "fable", "onyx", "nova", "shimmer"] as const;
+export const REALTIME_VOICES = ["alloy", "echo", "shimmer", "ash", "ballad", "coral", "sage", "verse", "cedar", "marin"] as const;
 
 export const REALTIME_MODELS = ["gpt-realtime", "gpt-4o-realtime-preview-2025-06-03"] as const;
 
