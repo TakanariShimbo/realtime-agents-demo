@@ -1,69 +1,31 @@
-# React + TypeScript + Vite
+# Realtime Agents Demo (frontend-only)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Simple React + Vite app that connects to the OpenAI Realtime API using the new Agents Realtime SDK (`@openai/agents-realtime`). It runs entirely in the browser and is intended for demos and local exploration only.
 
-Currently, two official plugins are available:
+Important: In production, never expose your normal OpenAI API key to the browser. Use an ephemeral client key minted by your backend and pass that to `session.connect({ apiKey })`. The official quickstart and transport guides cover ephemeral tokens and browser usage. See References.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Run locally
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm i
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Open the app, paste your OpenAI API key, pick a model, then Connect. For text-only chat pick Transport: `websocket`. For voice, pick `webrtc` and grant the microphone permission.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## What’s inside
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- `@openai/agents-realtime`: Realtime Agents browser SDK
+- Minimal service wrapper: `src/lib/realtime.ts`
+- Simple components: `KeyForm`, `Chat`, `Composer`
+
+## Notes
+
+- This demo sets an SDK option that allows a regular API key to be used from the browser for testing. Replace this with a backend that issues ephemeral client tokens for real deployments.
+- WebRTC transport auto-configures audio I/O; WebSocket transport is great for text-only chat. Managing raw PCM audio over WebSocket is also supported by the API if needed.
+
+## References
+
+- Agents SDK README (RealtimeAgent / RealtimeSession, browser usage)
+- Voice Agents Quickstart (ephemeral tokens, `session.connect({ apiKey })`, WebRTC auto-setup)
+- Transport guide (choose WebSocket vs WebRTC and raw audio handling)
