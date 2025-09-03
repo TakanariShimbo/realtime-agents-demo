@@ -6,7 +6,6 @@ import { createRealtimeSession, DEFAULT_MODEL } from "../lib/realtime";
 
 export default function VoiceClient() {
   const [status, setStatus] = useState<Status>("disconnected");
-  const [error, setError] = useState<string | null>(null);
   const [muted, setMuted] = useState(false);
 
   const sessionRef = useRef<ReturnType<typeof createRealtimeSession> | null>(null);
@@ -18,7 +17,6 @@ export default function VoiceClient() {
 
   async function handleConnect(v: KeyFormValues) {
     try {
-      setError(null);
       setStatus("connecting");
       sessionRef.current?.session.close();
 
@@ -29,15 +27,16 @@ export default function VoiceClient() {
         audioElement: audioRef.current,
       });
 
-      created.session.on("error", (e) => setError(String(e.error ?? e)));
+      created.session.on("error", (e) => {
+        console.error("Realtime session error:", e);
+      });
 
       await created.connect();
       sessionRef.current = created;
       setStatus("connected");
       setMuted(false);
     } catch (e: any) {
-      console.error(e);
-      setError(e?.message ?? String(e));
+      console.error("Connect failed:", e);
       setStatus("disconnected");
     }
   }
@@ -66,11 +65,6 @@ export default function VoiceClient() {
       </div>
       <ConnectionControls connected={status === "connected"} muted={muted} onDisconnect={handleDisconnect} onToggleMute={handleToggleMute} />
       <audio ref={audioRef} autoPlay />
-      {error && (
-        <div className="mt8" style={{ color: "#ffb3b3" }}>
-          Error: {error}
-        </div>
-      )}
     </>
   );
 }
