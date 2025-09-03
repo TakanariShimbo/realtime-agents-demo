@@ -14,15 +14,29 @@ export function createRealtimeSession(opts: ConnectOptions) {
   const agent = new RealtimeAgent({
     name: "Web Realtime Demo",
     instructions: opts.instructions ?? "You are a helpful assistant. Keep replies concise unless asked.",
-    voice: opts.voice,
+    // avoid auto session.update payloads; voice can be set later
   });
 
   const transport = new OpenAIRealtimeWebRTC({
-    // Ensure model on query until server-side SDP flow handles config-only
+    // Pass model in query to ensure the server returns SDP answer, not JSON error
     baseUrl: `https://api.openai.com/v1/realtime?model=${encodeURIComponent(opts.model ?? DEFAULT_MODEL)}`,
     useInsecureApiKey: true,
     audioElement: opts.audioElement ?? undefined,
   });
+
+  // Workaround: sanitize or drop outbound session.update events to avoid unknown_parameter errors
+  const originalSendEvent = transport.sendEvent.bind(transport);
+  transport.sendEvent = (ev: any) => {
+    try {
+      if (ev && ev.type === "session.update" && ev.session && typeof ev.session === "object") {
+        // Temporarily drop session.update entirely (SDK/server schema mismatch)
+        return;
+      }
+    } catch {
+      // fall through
+    }
+    return originalSendEvent(ev);
+  };
 
   const session = new RealtimeSession(agent, {
     transport,

@@ -34,6 +34,14 @@ export default function VoiceClient() {
           e instanceof Error ? e : e?.error?.message ?? e?.message ?? JSON.stringify(e)
         );
       });
+      // Optional: surface server events to help diagnose payload mismatches
+      created.session.on("event", (ev: any) => {
+        try {
+          // Only log first-level keys to keep it readable
+          const { type, event_id, error, session, response } = ev || {};
+          console.debug("Realtime session event:", { type, event_id, hasError: !!error, hasSession: !!session, hasResponse: !!response });
+        } catch {}
+      });
 
       await created.connect();
       sessionRef.current = created;
