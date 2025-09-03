@@ -19,7 +19,7 @@ export function KeyForm(props: { initial: KeyFormValues; onConnect: (vals: KeyFo
       <div className="row">
         <input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="sk-..." autoComplete="off" />
       </div>
-      <div className="hint small">{validKey ? "ブラウザにのみ保持されます。" : "sk-... のAPIキーを入力してください"}</div>
+      <div className="hint small">{validKey ? "APIキーがセットされています" : "APIキーを入力してください"}</div>
 
       <div className="sectionTitle">Voice</div>
       <div className="row">
