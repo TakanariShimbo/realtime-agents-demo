@@ -46,7 +46,7 @@ export function createRealtimeSession({
     transport,
     model: effectiveConversationModel as any,
     config: {
-      modalities: ["audio", "text"],
+      modalities: ["audio"],
       audio: {
         input: (() => {
           const td: any = {};

@@ -17,10 +17,21 @@ export type ConnectParams = {
   eagerness?: VadEagerness;
 };
 
+function extractTranscript(parts: any[]): string {
+  if (!Array.isArray(parts)) {
+    return "";
+  }
+  const tPart = parts.find((p: any) => typeof p?.transcript === "string" && p.transcript.trim());
+  if (tPart) {
+    return tPart.transcript.trim();
+  }
+  return "";
+}
+
 export function useRealtimeSession() {
   const [status, setStatus] = useState<ConnectionStatus>("disconnected");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const seenUserItemIds = useRef<Set<string>>(new Set());
+  const seenItemIds = useRef<Set<string>>(new Set());
   const sessionRef = useRef<ReturnType<typeof createRealtimeSession> | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -31,7 +42,7 @@ export function useRealtimeSession() {
       setStatus("connecting");
       sessionRef.current?.session.close();
       setMessages([]);
-      seenUserItemIds.current.clear();
+      seenItemIds.current.clear();
 
       const created = createRealtimeSession({
         ...p,
@@ -42,28 +53,20 @@ export function useRealtimeSession() {
         console.error("Realtime session error:", e instanceof Error ? e : e?.error?.message ?? e?.message ?? JSON.stringify(e));
       });
 
-      created.session.on("agent_end", (_ctx: any, _agent: any, text: string) => {
-        const content = (text ?? "").trim();
-        if (!content) return;
-        setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: "assistant", text: content }]);
-      });
-
       created.session.on("history_updated", (history: any[]) => {
         for (const item of history) {
           try {
-            if (!item || item.type !== "message" || item.role !== "user") continue;
+            if (!item || item.type !== "message") continue;
+            if (item.role !== "user" && item.role !== "assistant") continue;
+
             const id = String(item.itemId ?? item.id ?? "");
-            if (!id || seenUserItemIds.current.has(id)) continue;
+            if (!id || seenItemIds.current.has(id)) continue;
+
             const parts = Array.isArray(item.content) ? item.content : [];
-            const text = parts
-              .filter((p: any) => p && (p.type === "input_text" || p.type === "text"))
-              .map((p: any) => p.text || "")
-              .filter(Boolean)
-              .join(" ")
-              .trim();
+            const text = extractTranscript(parts);
             if (text) {
-              seenUserItemIds.current.add(id);
-              setMessages((prev) => [...prev, { id, role: "user", text }]);
+              seenItemIds.current.add(id);
+              setMessages((prev) => [...prev, { id, role: item.role, text }]);
             }
           } catch {}
         }
