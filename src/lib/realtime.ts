@@ -42,6 +42,7 @@ export function createRealtimeSession({
   const agent = new RealtimeAgent({
     name: "RealtimeAgent",
     instructions,
+    voice,
   });
 
   const transport = new OpenAIRealtimeWebRTC({
@@ -68,7 +69,10 @@ export function createRealtimeSession({
             ...(eagerness ? { eagerness } : {}),
           },
         },
-        output: { voice },
+        output: {
+          format: { type: "audio/pcm", rate: 24000 },
+          voice,
+        },
       },
     },
   });
