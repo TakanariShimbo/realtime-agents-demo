@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import KeyForm, { type KeyFormValues } from "./KeyForm";
 import StatusDot from "./StatusDot";
-import ConnectionControls from "./ConnectionControls";
 import { createRealtimeSession } from "../lib/realtime";
 import { DEFAULT_REALTIME_MODEL, DEFAULT_REALTIME_VOICE, DEFAULT_TURN_DETECTION_TYPE, DEFAULT_INSTRUCTIONS } from "../lib/constants";
 import { Box } from "@chakra-ui/react";
@@ -63,9 +62,14 @@ export default function VoiceClient() {
         <StatusDot status={status} />
       </Box>
       <Box mt={4}>
-        <KeyForm initial={initialForm} onConnect={handleConnect} connecting={status === "connecting"} connected={status === "connected"} />
+        <KeyForm
+          initial={initialForm}
+          onConnect={handleConnect}
+          onDisconnect={handleDisconnect}
+          connecting={status === "connecting"}
+          connected={status === "connected"}
+        />
       </Box>
-      <ConnectionControls connected={status === "connected"} onDisconnect={handleDisconnect} />
       <audio ref={audioRef} autoPlay />
     </Box>
   );

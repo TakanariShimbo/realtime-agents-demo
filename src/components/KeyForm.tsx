@@ -2,7 +2,7 @@ import type React from "react";
 import { useMemo, useState } from "react";
 import { isValidApiKey } from "../lib/validation";
 import { REALTIME_MODELS, REALTIME_VOICES, TURN_DETECTION_TYPES } from "../lib/constants";
-import { Field, Input, Textarea, Button, Stack, Heading, NativeSelect } from "@chakra-ui/react";
+import { Field, Input, Textarea, Stack, Heading, NativeSelect, Button } from "@chakra-ui/react";
 
 export type KeyFormValues = {
   apiKey: string;
@@ -12,7 +12,7 @@ export type KeyFormValues = {
   vadMode: (typeof TURN_DETECTION_TYPES)[number];
 };
 
-export function KeyForm(props: { initial: KeyFormValues; onConnect: (vals: KeyFormValues) => void; connecting?: boolean; connected?: boolean }) {
+export function KeyForm(props: { initial: KeyFormValues; onConnect: (vals: KeyFormValues) => void; onDisconnect: () => void; connecting?: boolean; connected?: boolean }) {
   const [apiKey, setApiKey] = useState(props.initial.apiKey);
   const [model, setModel] = useState(props.initial.model);
   const [voice, setVoice] = useState(props.initial.voice);
@@ -79,9 +79,22 @@ export function KeyForm(props: { initial: KeyFormValues; onConnect: (vals: KeyFo
         </NativeSelect.Root>
       </Field.Root>
 
-      <Button colorPalette="blue" disabled={!canSubmit} onClick={() => props.onConnect({ apiKey, model, voice, instructions, vadMode })}>
-        {props.connecting ? "Connecting..." : props.connected ? "Reconnect" : "Connect"}
-      </Button>
+      <Field.Root>
+        <Field.Label>Connection</Field.Label>
+        <Button
+          colorPalette={props.connected ? "red" : "blue"}
+          disabled={props.connecting || (!props.connected && !validKey)}
+          onClick={() => {
+            if (props.connected) {
+              props.onDisconnect();
+            } else if (canSubmit) {
+              props.onConnect({ apiKey, model, voice, instructions, vadMode });
+            }
+          }}
+        >
+          {props.connecting ? "Connecting..." : props.connected ? "Disconnect" : "Connect"}
+        </Button>
+      </Field.Root>
     </Stack>
   );
 }
