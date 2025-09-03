@@ -10,7 +10,6 @@ import { DEFAULT_CONNECTION_STATUS } from "../lib/constants";
 
 export default function VoiceClient() {
   const [status, setStatus] = useState<ConnectionStatus>(DEFAULT_CONNECTION_STATUS);
-  const [muted, setMuted] = useState(false);
 
   const sessionRef = useRef<ReturnType<typeof createRealtimeSession> | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -46,7 +45,6 @@ export default function VoiceClient() {
       await created.connect();
       sessionRef.current = created;
       setStatus("connected");
-      setMuted(false);
     } catch (e: any) {
       console.error("Connect failed:", e instanceof Error ? e : e?.error?.message ?? e?.message ?? JSON.stringify(e));
       setStatus("disconnected");
@@ -57,13 +55,6 @@ export default function VoiceClient() {
     sessionRef.current?.session.close();
     sessionRef.current = null;
     setStatus("disconnected");
-    setMuted(false);
-  }
-
-  function handleToggleMute() {
-    const next = !muted;
-    setMuted(next);
-    sessionRef.current?.session.mute(next);
   }
 
   return (
@@ -74,7 +65,7 @@ export default function VoiceClient() {
       <Box mt={4}>
         <KeyForm initial={initialForm} onConnect={handleConnect} connecting={status === "connecting"} connected={status === "connected"} />
       </Box>
-      <ConnectionControls connected={status === "connected"} muted={muted} onDisconnect={handleDisconnect} onToggleMute={handleToggleMute} />
+      <ConnectionControls connected={status === "connected"} onDisconnect={handleDisconnect} />
       <audio ref={audioRef} autoPlay />
     </Box>
   );
