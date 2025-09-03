@@ -27,8 +27,12 @@ export default function VoiceClient() {
         audioElement: audioRef.current,
       });
 
-      created.session.on("error", (e) => {
-        console.error("Realtime session error:", e);
+      created.session.on("error", (e: any) => {
+        // Keep it simple: prefer real Error object (stack), else readable string/JSON
+        console.error(
+          "Realtime session error:",
+          e instanceof Error ? e : e?.error?.message ?? e?.message ?? JSON.stringify(e)
+        );
       });
 
       await created.connect();
@@ -36,7 +40,10 @@ export default function VoiceClient() {
       setStatus("connected");
       setMuted(false);
     } catch (e: any) {
-      console.error("Connect failed:", e);
+      console.error(
+        "Connect failed:",
+        e instanceof Error ? e : e?.error?.message ?? e?.message ?? JSON.stringify(e)
+      );
       setStatus("disconnected");
     }
   }
