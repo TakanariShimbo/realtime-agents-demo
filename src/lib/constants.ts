@@ -13,3 +13,9 @@ export type ConnectionStatus = (typeof CONNECTION_STATUSES)[number];
 export type VadEagerness = (typeof VAD_EAGERNESS)[number];
 
 export const DEFAULT_INSTRUCTIONS = "You are a helpful assistant. Speak in Japanese. Keep replies concise unless asked.";
+
+export type ChatMessage = {
+  id: string;
+  role: "user" | "assistant";
+  text: string;
+};
