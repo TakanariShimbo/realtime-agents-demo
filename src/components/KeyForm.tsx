@@ -12,7 +12,13 @@ export type KeyFormValues = {
   vadMode: (typeof TURN_DETECTION_TYPES)[number];
 };
 
-export function KeyForm(props: { initial: KeyFormValues; onConnect: (vals: KeyFormValues) => void; onDisconnect: () => void; connecting?: boolean; connected?: boolean }) {
+export function KeyForm(props: {
+  initial: KeyFormValues;
+  onConnect: (vals: KeyFormValues) => void;
+  onDisconnect: () => void;
+  connecting?: boolean;
+  connected?: boolean;
+}) {
   const [apiKey, setApiKey] = useState(props.initial.apiKey);
   const [model, setModel] = useState(props.initial.model);
   const [voice, setVoice] = useState(props.initial.voice);
