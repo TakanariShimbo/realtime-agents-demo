@@ -28,19 +28,7 @@ export default function VoiceClient() {
       });
 
       created.session.on("error", (e: any) => {
-        // Keep it simple: prefer real Error object (stack), else readable string/JSON
-        console.error(
-          "Realtime session error:",
-          e instanceof Error ? e : e?.error?.message ?? e?.message ?? JSON.stringify(e)
-        );
-      });
-      // Optional: surface server events to help diagnose payload mismatches
-      created.session.on("event", (ev: any) => {
-        try {
-          // Only log first-level keys to keep it readable
-          const { type, event_id, error, session, response } = ev || {};
-          console.debug("Realtime session event:", { type, event_id, hasError: !!error, hasSession: !!session, hasResponse: !!response });
-        } catch {}
+        console.error("Realtime session error:", e instanceof Error ? e : e?.error?.message ?? e?.message ?? JSON.stringify(e));
       });
 
       await created.connect();
@@ -48,10 +36,7 @@ export default function VoiceClient() {
       setStatus("connected");
       setMuted(false);
     } catch (e: any) {
-      console.error(
-        "Connect failed:",
-        e instanceof Error ? e : e?.error?.message ?? e?.message ?? JSON.stringify(e)
-      );
+      console.error("Connect failed:", e instanceof Error ? e : e?.error?.message ?? e?.message ?? JSON.stringify(e));
       setStatus("disconnected");
     }
   }
