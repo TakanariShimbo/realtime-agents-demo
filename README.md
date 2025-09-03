@@ -8,3 +8,7 @@
 npm i
 npm run dev
 ```
+
+# How to deploy
+
+Ref: https://github.com/TakanariShimbo/test-github-pages
