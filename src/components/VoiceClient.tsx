@@ -19,6 +19,11 @@ export default function VoiceClient() {
     voice: DEFAULT_REALTIME_VOICE,
     instructions: DEFAULT_INSTRUCTIONS,
     vadMode: DEFAULT_TURN_DETECTION_TYPE,
+    silenceDurationMs: undefined,
+    prefixPaddingMs: undefined,
+    idleTimeoutMs: undefined,
+    threshold: undefined,
+    eagerness: undefined,
   };
 
   useEffect(() => () => sessionRef.current?.session.close(), []);
@@ -34,6 +39,11 @@ export default function VoiceClient() {
         voice: v.voice,
         instructions: v.instructions,
         turnDetectionType: v.vadMode,
+        silenceDurationMs: v.silenceDurationMs,
+        prefixPaddingMs: v.prefixPaddingMs,
+        idleTimeoutMs: v.idleTimeoutMs,
+        threshold: v.threshold,
+        eagerness: v.eagerness,
         audioElement: audioRef.current,
       });
 

@@ -1,5 +1,5 @@
 import { OpenAIRealtimeWebRTC, RealtimeAgent, RealtimeSession } from "@openai/agents-realtime";
-import type { RealtimeModel, RealtimeVoice, TurnDetectionType } from "./constants";
+import type { RealtimeModel, RealtimeVoice, TurnDetectionType, VadEagerness } from "./constants";
 import { DEFAULT_INSTRUCTIONS, DEFAULT_REALTIME_MODEL, DEFAULT_REALTIME_VOICE, DEFAULT_TURN_DETECTION_TYPE } from "./constants";
 
 export type ConnectOptions = {
@@ -8,6 +8,11 @@ export type ConnectOptions = {
   voice?: RealtimeVoice;
   instructions?: string;
   turnDetectionType?: TurnDetectionType;
+  silenceDurationMs?: number;
+  prefixPaddingMs?: number;
+  idleTimeoutMs?: number;
+  threshold?: number;
+  eagerness?: VadEagerness;
   audioElement?: HTMLAudioElement | null;
 };
 
@@ -17,6 +22,11 @@ export function createRealtimeSession({
   voice = DEFAULT_REALTIME_VOICE as RealtimeVoice,
   instructions = DEFAULT_INSTRUCTIONS,
   turnDetectionType = DEFAULT_TURN_DETECTION_TYPE,
+  silenceDurationMs,
+  prefixPaddingMs,
+  idleTimeoutMs,
+  threshold,
+  eagerness,
   audioElement,
 }: ConnectOptions) {
   const agent = new RealtimeAgent({
@@ -41,6 +51,11 @@ export function createRealtimeSession({
             type: turnDetectionType,
             createResponse: true,
             interruptResponse: true,
+            ...(typeof silenceDurationMs === "number" ? { silenceDurationMs } : {}),
+            ...(typeof prefixPaddingMs === "number" ? { prefixPaddingMs } : {}),
+            ...(typeof idleTimeoutMs === "number" ? { idleTimeoutMs } : {}),
+            ...(typeof threshold === "number" ? { threshold } : {}),
+            ...(eagerness ? { eagerness } : {}),
           },
         },
         output: { voice },

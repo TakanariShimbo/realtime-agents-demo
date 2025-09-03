@@ -1,8 +1,8 @@
 import type React from "react";
 import { useMemo, useState } from "react";
 import { isValidApiKey } from "../lib/validation";
-import { REALTIME_MODELS, REALTIME_VOICES, TURN_DETECTION_TYPES } from "../lib/constants";
-import { Field, Input, Textarea, Stack, Heading, NativeSelect, Button } from "@chakra-ui/react";
+import { REALTIME_MODELS, REALTIME_VOICES, TURN_DETECTION_TYPES, VAD_EAGERNESS } from "../lib/constants";
+import { Field, Input, Textarea, Stack, Heading, NativeSelect, Button, HStack } from "@chakra-ui/react";
 
 export type KeyFormValues = {
   apiKey: string;
@@ -10,6 +10,12 @@ export type KeyFormValues = {
   voice: (typeof REALTIME_VOICES)[number];
   instructions: string;
   vadMode: (typeof TURN_DETECTION_TYPES)[number];
+  // Optional VAD tuning
+  silenceDurationMs?: number;
+  prefixPaddingMs?: number;
+  idleTimeoutMs?: number;
+  threshold?: number;
+  eagerness?: (typeof VAD_EAGERNESS)[number];
 };
 
 export function KeyForm(props: {
@@ -24,6 +30,11 @@ export function KeyForm(props: {
   const [voice, setVoice] = useState(props.initial.voice);
   const [instructions, setInstructions] = useState(props.initial.instructions);
   const [vadMode, setVadMode] = useState<KeyFormValues["vadMode"]>(props.initial.vadMode);
+  const [silenceMs, setSilenceMs] = useState<number | undefined>(props.initial.silenceDurationMs);
+  const [prefixMs, setPrefixMs] = useState<number | undefined>(props.initial.prefixPaddingMs);
+  const [idleMs, setIdleMs] = useState<number | undefined>(props.initial.idleTimeoutMs);
+  const [threshold, setThreshold] = useState<number | undefined>(props.initial.threshold);
+  const [eagerness, setEagerness] = useState<KeyFormValues["eagerness"]>(props.initial.eagerness);
 
   const validKey = useMemo(() => isValidApiKey(apiKey), [apiKey]);
   const canSubmit = validKey && !props.connecting;
@@ -84,6 +95,56 @@ export function KeyForm(props: {
           <NativeSelect.Indicator />
         </NativeSelect.Root>
       </Field.Root>
+
+      <Field.Root>
+        <Field.Label>VAD Eagerness</Field.Label>
+        <NativeSelect.Root>
+          <NativeSelect.Field value={eagerness ?? ""} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setEagerness(e.target.value as KeyFormValues["eagerness"])}>
+            <option value="">(auto)</option>
+            {VAD_EAGERNESS.map((e) => (
+              <option key={e} value={e}>
+                {e}
+              </option>
+            ))}
+          </NativeSelect.Field>
+          <NativeSelect.Indicator />
+        </NativeSelect.Root>
+      </Field.Root>
+
+      <HStack gap={3}>
+        <Field.Root flex="1">
+          <Field.Label>Silence (ms)</Field.Label>
+          <Input
+            type="number"
+            placeholder="e.g. 700"
+            value={silenceMs ?? ""}
+            onChange={(e) => setSilenceMs(e.target.value === "" ? undefined : Number(e.target.value))}
+          />
+        </Field.Root>
+        <Field.Root flex="1">
+          <Field.Label>Prefix padding (ms)</Field.Label>
+          <Input type="number" placeholder="e.g. 250" value={prefixMs ?? ""} onChange={(e) => setPrefixMs(e.target.value === "" ? undefined : Number(e.target.value))} />
+        </Field.Root>
+      </HStack>
+
+      <HStack gap={3}>
+        <Field.Root flex="1">
+          <Field.Label>Idle timeout (ms)</Field.Label>
+          <Input type="number" placeholder="(optional)" value={idleMs ?? ""} onChange={(e) => setIdleMs(e.target.value === "" ? undefined : Number(e.target.value))} />
+        </Field.Root>
+        <Field.Root flex="1">
+          <Field.Label>Threshold (0-1)</Field.Label>
+          <Input
+            type="number"
+            step="0.05"
+            min="0"
+            max="1"
+            placeholder="e.g. 0.5"
+            value={threshold ?? ""}
+            onChange={(e) => setThreshold(e.target.value === "" ? undefined : Number(e.target.value))}
+          />
+        </Field.Root>
+      </HStack>
 
       <Field.Root>
         <Field.Label>Connection</Field.Label>
