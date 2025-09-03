@@ -18,11 +18,7 @@
   color: var(--text);
 }
 
-.app{
-  display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 16px;
-}
+.app{ display: grid; grid-template-columns: 1fr; gap: 16px; }
 
 .sidebar{
   background: var(--panel);
@@ -72,14 +68,7 @@ button:disabled{ opacity: .6; cursor: not-allowed; }
 .dot.warn{ background: #ffb36b; }
 .dot.err{ background: var(--danger); }
 
-.main{
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  min-height: 560px;
-}
+/* .main removed in voice-only layout */
 
 .chat{
   flex: 1 1 auto;
@@ -113,6 +102,4 @@ button:disabled{ opacity: .6; cursor: not-allowed; }
 
 audio{ width: 100%; margin-top: 8px; }
 
-@media (max-width: 860px){
-  .app{ grid-template-columns: 1fr; }
-}
+/* single-column layout always */
