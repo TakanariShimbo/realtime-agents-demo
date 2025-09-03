@@ -2,20 +2,12 @@ import type React from "react";
 import { useMemo, useState } from "react";
 import { isValidApiKey } from "../lib/validation";
 import { REALTIME_MODELS, REALTIME_VOICES, TURN_DETECTION_TYPES } from "../lib/constants";
-import {
-  Field,
-  Input,
-  Textarea,
-  Button,
-  Stack,
-  Heading,
-  NativeSelect,
-} from "@chakra-ui/react";
+import { Field, Input, Textarea, Button, Stack, Heading, NativeSelect } from "@chakra-ui/react";
 
 export type KeyFormValues = {
   apiKey: string;
-  model: typeof REALTIME_MODELS[number];
-  voice: typeof REALTIME_VOICES[number];
+  model: (typeof REALTIME_MODELS)[number];
+  voice: (typeof REALTIME_VOICES)[number];
   instructions: string;
   vadMode: (typeof TURN_DETECTION_TYPES)[number];
 };
@@ -45,7 +37,9 @@ export function KeyForm(props: { initial: KeyFormValues; onConnect: (vals: KeyFo
         <NativeSelect.Root>
           <NativeSelect.Field value={model} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setModel(e.target.value as KeyFormValues["model"])}>
             {REALTIME_MODELS.map((m) => (
-              <option key={m} value={m}>{m}</option>
+              <option key={m} value={m}>
+                {m}
+              </option>
             ))}
           </NativeSelect.Field>
           <NativeSelect.Indicator />
@@ -57,7 +51,9 @@ export function KeyForm(props: { initial: KeyFormValues; onConnect: (vals: KeyFo
         <NativeSelect.Root>
           <NativeSelect.Field value={voice} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setVoice(e.target.value as KeyFormValues["voice"])}>
             {REALTIME_VOICES.map((v) => (
-              <option key={v} value={v}>{v}</option>
+              <option key={v} value={v}>
+                {v}
+              </option>
             ))}
           </NativeSelect.Field>
           <NativeSelect.Indicator />
@@ -72,9 +68,11 @@ export function KeyForm(props: { initial: KeyFormValues; onConnect: (vals: KeyFo
       <Field.Root>
         <Field.Label>VAD (Turn Detection)</Field.Label>
         <NativeSelect.Root>
-          <NativeSelect.Field value={vadMode} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setVadMode(e.target.value as KeyFormValues["vadMode"]) }>
+          <NativeSelect.Field value={vadMode} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setVadMode(e.target.value as KeyFormValues["vadMode"])}>
             {TURN_DETECTION_TYPES.map((t) => (
-              <option key={t} value={t}>{t}</option>
+              <option key={t} value={t}>
+                {t}
+              </option>
             ))}
           </NativeSelect.Field>
           <NativeSelect.Indicator />
