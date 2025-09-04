@@ -53,11 +53,14 @@ export function useRealtimeSession() {
         console.error("Realtime session error:", e instanceof Error ? e : e?.error?.message ?? e?.message ?? JSON.stringify(e));
       });
 
+      const transcriptionOnly = p.conversationModel === ("none" as ConversationModel);
+
       created.session.on("history_updated", (history: any[]) => {
         for (const item of history) {
           try {
             if (!item || item.type !== "message") continue;
             if (item.role !== "user" && item.role !== "assistant") continue;
+            if (transcriptionOnly && item.role !== "user") continue;
 
             const id = String(item.itemId ?? item.id ?? "");
             if (!id || seenItemIds.current.has(id)) continue;

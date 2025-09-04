@@ -30,12 +30,13 @@ export function createRealtimeSession({
   eagerness,
   audioElement,
 }: ConnectOptions) {
+  const transcriptionOnly = conversationModel === ("none" as ConversationModel);
   const agentConfig: any = { name: "RealtimeAgent" };
-  if (instructions) agentConfig.instructions = instructions;
-  if (voice) agentConfig.voice = voice;
+  if (!transcriptionOnly && instructions) agentConfig.instructions = instructions;
+  if (!transcriptionOnly && voice) agentConfig.voice = voice;
   const agent = new RealtimeAgent(agentConfig);
 
-  const effectiveConversationModel = conversationModel ?? (DEFAULT_OPENAI_REALTIME_MODEL as string);
+  const effectiveConversationModel = transcriptionOnly ? (DEFAULT_OPENAI_REALTIME_MODEL as string) : conversationModel ?? (DEFAULT_OPENAI_REALTIME_MODEL as string);
   const transport = new OpenAIRealtimeWebRTC({
     baseUrl: `https://api.openai.com/v1/realtime/calls?model=${encodeURIComponent(effectiveConversationModel)}`,
     useInsecureApiKey: true,
@@ -46,7 +47,7 @@ export function createRealtimeSession({
     transport,
     model: effectiveConversationModel as any,
     config: {
-      modalities: ["audio"],
+      modalities: transcriptionOnly ? (["text"] as any) : (["audio"] as any),
       audio: {
         input: (() => {
           const td: any = {};
@@ -56,6 +57,7 @@ export function createRealtimeSession({
           if (typeof idleTimeoutMs === "number") td.idleTimeoutMs = idleTimeoutMs;
           if (typeof threshold === "number") td.threshold = threshold;
           if (eagerness) td.eagerness = eagerness;
+          if (transcriptionOnly) td.createResponse = false;
           const inputCfg: any = {
             transcription: { language: "ja", ...(transcriptionModel ? { model: transcriptionModel } : {}) },
           };
@@ -64,7 +66,7 @@ export function createRealtimeSession({
         })(),
         output: (() => {
           const out: any = { format: { type: "audio/pcm", rate: 24000 } };
-          if (voice) out.voice = voice;
+          if (!transcriptionOnly && voice) out.voice = voice;
           return out;
         })(),
       },

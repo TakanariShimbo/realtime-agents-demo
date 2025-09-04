@@ -1,5 +1,5 @@
 export const REALTIME_VOICES = ["alloy", "echo", "shimmer", "ash", "ballad", "coral", "sage", "verse", "cedar", "marin"] as const;
-export const CONVERSATION_MODELS = ["gpt-realtime", "gpt-4o-realtime-preview-2025-06-03"] as const;
+export const CONVERSATION_MODELS = ["none", "gpt-realtime", "gpt-4o-realtime-preview-2025-06-03"] as const;
 export const TRANSCRIPTION_MODELS = ["gpt-4o-transcribe", "gpt-4o-mini-transcribe"] as const;
 export const TURN_DETECTION_TYPES = ["server_vad", "semantic_vad"] as const;
 export const CONNECTION_STATUSES = ["disconnected", "connecting", "connected"] as const;

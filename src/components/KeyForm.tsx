@@ -60,7 +60,7 @@ export function KeyForm(props: {
             <option value="">Default</option>
             {CONVERSATION_MODELS.map((m) => (
               <option key={m} value={m}>
-                {m}
+                {m === "none" ? "none (transcription-only)" : m}
               </option>
             ))}
           </NativeSelect.Field>
