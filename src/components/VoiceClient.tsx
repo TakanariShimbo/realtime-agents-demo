@@ -4,6 +4,7 @@ import { DEFAULT_INSTRUCTIONS } from "../lib/constants";
 import { Box, Flex, Heading, Field, Input, Button, HStack, Dialog } from "@chakra-ui/react";
 import useRealtimeSession from "../hooks/useRealtimeSession";
 import ChatLog from "./ChatLog";
+import TranscriptionLog from "./TranscriptionLog";
 import { useMemo, useState } from "react";
 import { isValidApiKey } from "../lib/validation";
 
@@ -84,7 +85,7 @@ export default function VoiceClient() {
       </Flex>
 
       <Flex gap={4} alignItems="stretch" mt={3}>
-        <Box flex="1 1 50%" borderWidth="1px" borderRadius="lg" p={3}>
+        <Box flex="1 1 33%" borderWidth="1px" borderRadius="lg" p={3}>
           <KeyForm
             initial={initialForm}
             onConnect={handleConnect}
@@ -98,8 +99,17 @@ export default function VoiceClient() {
           />
           <audio ref={audioRef} autoPlay />
         </Box>
-        <Box flex="1 1 50%" borderWidth="1px" borderRadius="lg" p={3} minH="320px">
-          <ChatLog messages={messages} />
+        <Box flex="1 1 33%" borderWidth="1px" borderRadius="lg" p={3} minH="320px">
+          <TranscriptionLog
+            messages={mode === "transcription" ? messages : []}
+            emptyHint="Shown only in Transcription mode."
+          />
+        </Box>
+        <Box flex="1 1 33%" borderWidth="1px" borderRadius="lg" p={3} minH="320px">
+          <ChatLog
+            messages={mode === "conversation" ? messages : []}
+            emptyHint="Shown only in Conversation mode."
+          />
         </Box>
       </Flex>
 
