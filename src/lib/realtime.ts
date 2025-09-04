@@ -1,10 +1,11 @@
 import { OpenAIRealtimeWebRTC, RealtimeAgent, RealtimeSession, DEFAULT_OPENAI_REALTIME_MODEL } from "@openai/agents-realtime";
-import type { ConversationModel, RealtimeVoice, TurnDetectionType, VadEagerness, TranscriptionModel } from "./constants";
+import type { ConversationModel, RealtimeVoice, TurnDetectionType, VadEagerness, TranscriptionModel, SessionMode } from "./constants";
 
 export type ConnectOptions = {
   apiKey: string;
   conversationModel?: ConversationModel;
   transcriptionModel?: TranscriptionModel;
+  mode?: SessionMode; // conversation or transcription (default)
   voice?: RealtimeVoice;
   instructions?: string;
   turnDetectionType?: TurnDetectionType;
@@ -20,6 +21,7 @@ export function createRealtimeSession({
   apiKey,
   conversationModel,
   transcriptionModel,
+  mode,
   voice,
   instructions,
   turnDetectionType,
@@ -30,7 +32,7 @@ export function createRealtimeSession({
   eagerness,
   audioElement,
 }: ConnectOptions) {
-  const transcriptionOnly = conversationModel === ("none" as ConversationModel);
+  const transcriptionOnly = (mode ?? "transcription") === "transcription";
   const agentConfig: any = { name: "RealtimeAgent" };
   if (!transcriptionOnly && instructions) agentConfig.instructions = instructions;
   if (!transcriptionOnly && voice) agentConfig.voice = voice;

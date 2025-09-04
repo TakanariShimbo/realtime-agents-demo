@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { createRealtimeSession } from "../lib/realtime";
-import type { ConnectionStatus, ConversationModel, TranscriptionModel, VadEagerness, RealtimeVoice, TurnDetectionType } from "../lib/constants";
+import type { ConnectionStatus, ConversationModel, TranscriptionModel, VadEagerness, RealtimeVoice, TurnDetectionType, SessionMode } from "../lib/constants";
 import type { ChatMessage } from "../lib/constants";
 
 export type ConnectParams = {
   apiKey: string;
   conversationModel?: ConversationModel;
   transcriptionModel?: TranscriptionModel;
+  mode?: SessionMode;
   voice?: RealtimeVoice;
   instructions?: string;
   turnDetectionType?: TurnDetectionType;

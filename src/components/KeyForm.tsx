@@ -22,6 +22,8 @@ export function KeyForm(props: {
   initial: KeyFormValues;
   onConnect: (vals: KeyFormValues) => void;
   onDisconnect: () => void;
+  mode: "conversation" | "transcription";
+  onSwitchMode: (mode: "conversation" | "transcription") => void;
   connecting?: boolean;
   connected?: boolean;
 }) {
@@ -60,7 +62,7 @@ export function KeyForm(props: {
             <option value="">Default</option>
             {CONVERSATION_MODELS.map((m) => (
               <option key={m} value={m}>
-                {m === "none" ? "none (transcription-only)" : m}
+                {m}
               </option>
             ))}
           </NativeSelect.Field>
@@ -197,6 +199,17 @@ export function KeyForm(props: {
           }}
         >
           {props.connecting ? "Connecting..." : props.connected ? "Disconnect" : "Connect"}
+        </Button>
+      </Field.Root>
+
+      <Field.Root>
+        <Field.Label>Mode</Field.Label>
+        <Button
+          colorPalette="blue"
+          disabled={!props.connected || props.connecting}
+          onClick={() => props.onSwitchMode(props.mode === "transcription" ? "conversation" : "transcription")}
+        >
+          {props.mode === "transcription" ? "Conversation" : "Transcription"}
         </Button>
       </Field.Root>
     </Stack>
