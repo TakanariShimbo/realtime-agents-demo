@@ -1,8 +1,7 @@
 import type React from "react";
-import { useMemo, useState } from "react";
-import { isValidApiKey } from "../lib/validation";
+import { useState } from "react";
 import { CONVERSATION_MODELS, TRANSCRIPTION_MODELS, REALTIME_VOICES, TURN_DETECTION_TYPES, VAD_EAGERNESS } from "../lib/constants";
-import { Field, Input, Textarea, Stack, Heading, NativeSelect, Button, HStack } from "@chakra-ui/react";
+import { Field, Input, Textarea, Stack, NativeSelect, Button, HStack } from "@chakra-ui/react";
 
 export type KeyFormValues = {
   apiKey: string;
@@ -24,10 +23,11 @@ export function KeyForm(props: {
   onDisconnect: () => void;
   mode: "conversation" | "transcription";
   onSwitchMode: (mode: "conversation" | "transcription") => void;
+  apiKey: string;
+  apiKeyValid: boolean;
   connecting?: boolean;
   connected?: boolean;
 }) {
-  const [apiKey, setApiKey] = useState(props.initial.apiKey);
   const [conversationModel, setConversationModel] = useState<KeyFormValues["conversationModel"]>(props.initial.conversationModel);
   const [transcriptionModel, setTranscriptionModel] = useState<KeyFormValues["transcriptionModel"]>(props.initial.transcriptionModel);
   const [voice, setVoice] = useState<KeyFormValues["voice"]>(props.initial.voice);
@@ -39,19 +39,10 @@ export function KeyForm(props: {
   const [threshold, setThreshold] = useState<number | undefined>(props.initial.threshold);
   const [eagerness, setEagerness] = useState<KeyFormValues["eagerness"]>(props.initial.eagerness);
 
-  const validKey = useMemo(() => isValidApiKey(apiKey), [apiKey]);
-  const canSubmit = validKey && !props.connecting;
+  const canSubmit = props.apiKeyValid && !props.connecting;
 
   return (
     <Stack gap={4}>
-      <Heading size="md">Realtime Demo</Heading>
-
-      <Field.Root>
-        <Field.Label>OpenAI API Key</Field.Label>
-        <Input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="sk-..." autoComplete="off" />
-        <Field.HelperText>{validKey ? "APIキーがセットされています" : "APIキーを入力してください"}</Field.HelperText>
-      </Field.Root>
-
       <Field.Root>
         <Field.Label>Conversation Model</Field.Label>
         <NativeSelect.Root>
@@ -177,13 +168,13 @@ export function KeyForm(props: {
         <Field.Label>Connection</Field.Label>
         <Button
           colorPalette={props.connected ? "red" : "blue"}
-          disabled={props.connecting || (!props.connected && !validKey)}
+          disabled={props.connecting || (!props.connected && !props.apiKeyValid)}
           onClick={() => {
             if (props.connected) {
               props.onDisconnect();
             } else if (canSubmit) {
               props.onConnect({
-                apiKey,
+                apiKey: props.apiKey,
                 conversationModel,
                 transcriptionModel,
                 voice,
