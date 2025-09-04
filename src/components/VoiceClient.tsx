@@ -1,7 +1,7 @@
 import KeyForm, { type KeyFormValues } from "./KeyForm";
 import StatusDot from "./StatusDot";
 import { DEFAULT_INSTRUCTIONS } from "../lib/constants";
-import { Box, Flex, Heading, Field, Input, Text, Button, HStack, Dialog } from "@chakra-ui/react";
+import { Box, Flex, Heading, Field, Input, Button, HStack, Dialog } from "@chakra-ui/react";
 import useRealtimeSession from "../hooks/useRealtimeSession";
 import ChatLog from "./ChatLog";
 import { useMemo, useState } from "react";
@@ -83,27 +83,25 @@ export default function VoiceClient() {
         </HStack>
       </Flex>
 
-      <Box borderWidth="1px" borderRadius="lg" p={4} mt={3}>
-        <Flex gap={4} alignItems="stretch">
-          <Box flex="1 1 50%">
-            <KeyForm
-              initial={initialForm}
-              onConnect={handleConnect}
-              onDisconnect={handleDisconnect}
-              mode={mode}
-              onSwitchMode={handleSwitch}
-              apiKey={apiKey}
-              apiKeyValid={apiKeyValid}
-              connecting={status === "connecting"}
-              connected={status === "connected"}
-            />
-            <audio ref={audioRef} autoPlay />
-          </Box>
-          <Box flex="1 1 50%" borderWidth="1px" borderRadius="lg" p={3} minH="320px">
-            <ChatLog messages={messages} />
-          </Box>
-        </Flex>
-      </Box>
+      <Flex gap={4} alignItems="stretch" mt={3}>
+        <Box flex="1 1 50%" borderWidth="1px" borderRadius="lg" p={3}>
+          <KeyForm
+            initial={initialForm}
+            onConnect={handleConnect}
+            onDisconnect={handleDisconnect}
+            mode={mode}
+            onSwitchMode={handleSwitch}
+            apiKey={apiKey}
+            apiKeyValid={apiKeyValid}
+            connecting={status === "connecting"}
+            connected={status === "connected"}
+          />
+          <audio ref={audioRef} autoPlay />
+        </Box>
+        <Box flex="1 1 50%" borderWidth="1px" borderRadius="lg" p={3} minH="320px">
+          <ChatLog messages={messages} />
+        </Box>
+      </Flex>
 
       <Dialog.Root open={apiKeyOpen} onOpenChange={(e) => setApiKeyOpen(e.open)}>
         <Dialog.Backdrop />
