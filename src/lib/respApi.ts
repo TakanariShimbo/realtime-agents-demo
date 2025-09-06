@@ -1,63 +1,31 @@
+import OpenAI from "openai";
+import { Agent, run } from "@openai/agents";
+import { OpenAIResponsesModel, webSearchTool } from "@openai/agents";
+
 export type WebSearchOptions = {
   apiKey: string;
   query: string;
   instructions?: string;
+  model?: string;
 };
 
-export async function runResponsesWebSearch({ apiKey, query }: WebSearchOptions): Promise<string> {
-  const res = await fetchResponsesWebSearch({ apiKey, query });
-  return extractResponsesOutput(res) || JSON.stringify(res);
-}
+const DEFAULT_MODEL = "gpt-4.1";
+const DEFAULT_INSTRUCTIONS = "Use the built-in web_search tool to answer the user's question. Keep the answer short and concise.";
 
-export async function fetchResponsesWebSearch({
-  apiKey,
-  query,
-  instructions = "Use the built-in web_search tool to answer the user's question. Keep the answer short and concise.",
-  model = "gpt-4.1",
-}: {
-  apiKey: string;
-  query: string;
-  instructions?: string;
-  model?: string;
-}): Promise<any> {
-  const resp = await fetch("https://api.openai.com/v1/responses", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      input: query,
-      instructions: instructions,
-      tools: [{ type: "web_search" }],
-      text: { format: { type: "text" } },
-    }),
+function buildAgent({ apiKey, model, instructions }: { apiKey: string; model: string; instructions: string }) {
+  const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
+  const responsesModel = new OpenAIResponsesModel(openai, model);
+  return new Agent({
+    name: "ResponsesWebSearchAgent",
+    model: responsesModel,
+    tools: [webSearchTool()],
+    instructions,
   });
-
-  if (!resp.ok) {
-    let detail = "";
-    try {
-      const j = await resp.json();
-      detail = j?.error?.message || JSON.stringify(j);
-    } catch {}
-    throw new Error(`Responses API error (${resp.status}): ${detail}`);
-  }
-  return await resp.json();
 }
 
-function extractResponsesOutput(payload: any): string {
-  if (!payload) return "";
-  if (typeof payload.output_text === "string" && payload.output_text.trim()) return payload.output_text.trim();
-  const items = Array.isArray(payload.output) ? payload.output : [];
-  const parts: string[] = [];
-  for (const it of items) {
-    const content = Array.isArray(it?.content) ? it.content : [];
-    for (const c of content) {
-      if (c?.type === "output_text" && typeof c?.text === "string" && c.text.trim()) {
-        parts.push(c.text.trim());
-      }
-    }
-  }
-  return parts.join("\n\n").trim();
+export async function runResponsesWebSearch({ apiKey, query, instructions = DEFAULT_INSTRUCTIONS, model = DEFAULT_MODEL }: WebSearchOptions): Promise<string> {
+  const agent = buildAgent({ apiKey, model, instructions });
+  const result = await run(agent, query);
+  const out = result.finalOutput;
+  return typeof out === "string" ? out : JSON.stringify(out);
 }
