@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import type { ConnectionStatus, RealtimeSessionHandle, RealtimeConnectOptions } from "../lib/realtime";
 import { prepareRealtimeSession } from "../lib/realtime";
-import type { ChatMessage } from "../lib/constants";
+
+export type ChatMessage = {
+  id: string;
+  role: "user" | "assistant";
+  text: string;
+};
 
 function extractTranscript(parts: any[]): string {
   if (!Array.isArray(parts)) {
