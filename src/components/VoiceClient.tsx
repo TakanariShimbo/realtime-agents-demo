@@ -1,6 +1,6 @@
 import KeyForm, { type KeyFormValues } from "./KeyForm";
 import StatusDot from "./StatusDot";
-import { DEFAULT_INSTRUCTIONS } from "../lib/constants";
+import { DEFAULT_INSTRUCTIONS } from "../lib/realtime";
 import { Box, Flex, Heading, Field, Input, Button, HStack, Dialog } from "@chakra-ui/react";
 import useRealtimeSession from "../hooks/useRealtimeSession";
 import ChatLog from "./ChatLog";
@@ -100,16 +100,10 @@ export default function VoiceClient() {
           <audio ref={audioRef} autoPlay />
         </Box>
         <Box flex="1 1 33%" borderWidth="1px" borderRadius="lg" p={3} minH="320px">
-          <TranscriptionLog
-            messages={mode === "transcription" ? messages : []}
-            emptyHint="Shown only in Transcription mode."
-          />
+          <TranscriptionLog messages={mode === "transcription" ? messages : []} emptyHint="Shown only in Transcription mode." />
         </Box>
         <Box flex="1 1 33%" borderWidth="1px" borderRadius="lg" p={3} minH="320px">
-          <ChatLog
-            messages={mode === "conversation" ? messages : []}
-            emptyHint="Shown only in Conversation mode."
-          />
+          <ChatLog messages={mode === "conversation" ? messages : []} emptyHint="Shown only in Conversation mode." />
         </Box>
       </Flex>
 

@@ -1,7 +1,7 @@
 import { tool } from "@openai/agents-realtime";
 import { runResponsesWebSearch } from "./respApi";
 
-export function makeResponsesWebSearchTool(apiKey: string) {
+export function createResponsesWebSearchTool(apiKey: string) {
   return tool({
     name: "web_search",
     description: "Use this tool to search the web. Input should be a search query in natural language.",

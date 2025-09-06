@@ -1,22 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { createRealtimeSession } from "../lib/realtime";
-import type { ConnectionStatus, ConversationModel, TranscriptionModel, VadEagerness, RealtimeVoice, TurnDetectionType, SessionMode } from "../lib/realtime";
+import { prepareTranscriptionSession, prepareConversationSession } from "../lib/realtime";
+import type { ConnectionStatus, RealtimeSessionHandle, TranscriptionConnectOptions, ConversationConnectOptions } from "../lib/realtime";
 import type { ChatMessage } from "../lib/constants";
 
-export type ConnectParams = {
-  apiKey: string;
-  conversationModel?: ConversationModel;
-  transcriptionModel?: TranscriptionModel;
-  mode?: SessionMode;
-  voice?: RealtimeVoice;
-  instructions?: string;
-  turnDetectionType?: TurnDetectionType;
-  silenceDurationMs?: number;
-  prefixPaddingMs?: number;
-  idleTimeoutMs?: number;
-  threshold?: number;
-  eagerness?: VadEagerness;
-};
+export type ConnectParams = ({ mode?: "transcription" } & TranscriptionConnectOptions) | ({ mode: "conversation" } & ConversationConnectOptions);
 
 function extractTranscript(parts: any[]): string {
   if (!Array.isArray(parts)) {
@@ -33,7 +20,7 @@ export function useRealtimeSession() {
   const [status, setStatus] = useState<ConnectionStatus>("disconnected");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const seenItemIds = useRef<Set<string>>(new Set());
-  const sessionRef = useRef<ReturnType<typeof createRealtimeSession> | null>(null);
+  const sessionRef = useRef<RealtimeSessionHandle | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => () => sessionRef.current?.session.close(), []);
@@ -45,10 +32,50 @@ export function useRealtimeSession() {
       setMessages([]);
       seenItemIds.current.clear();
 
-      const created = createRealtimeSession({
-        ...p,
-        audioElement: audioRef.current,
-      });
+      let created: RealtimeSessionHandle;
+      if (p.mode === "conversation") {
+        const {
+          apiKey,
+          conversationModel,
+          transcriptionModel,
+          voice,
+          instructions,
+          turnDetectionType,
+          silenceDurationMs,
+          prefixPaddingMs,
+          idleTimeoutMs,
+          threshold,
+          eagerness,
+        } = p as ConversationConnectOptions & { mode: "conversation" };
+        created = prepareConversationSession({
+          apiKey,
+          conversationModel,
+          transcriptionModel,
+          voice,
+          instructions,
+          turnDetectionType,
+          silenceDurationMs,
+          prefixPaddingMs,
+          idleTimeoutMs,
+          threshold,
+          eagerness,
+          audioElement: audioRef.current,
+        });
+      } else {
+        const { apiKey, transcriptionModel, turnDetectionType, silenceDurationMs, prefixPaddingMs, idleTimeoutMs, threshold, eagerness } =
+          p as TranscriptionConnectOptions & { mode?: "transcription" };
+        created = prepareTranscriptionSession({
+          apiKey,
+          transcriptionModel,
+          turnDetectionType,
+          silenceDurationMs,
+          prefixPaddingMs,
+          idleTimeoutMs,
+          threshold,
+          eagerness,
+          audioElement: audioRef.current,
+        });
+      }
 
       created.session.on("error", (e: any) => {
         console.error("Realtime session error:", e instanceof Error ? e : e?.error?.message ?? e?.message ?? JSON.stringify(e));
