@@ -1,12 +1,27 @@
 import { OpenAIRealtimeWebRTC, RealtimeAgent, RealtimeSession, DEFAULT_OPENAI_REALTIME_MODEL } from "@openai/agents-realtime";
 import { makeResponsesWebSearchTool } from "./tools";
-import type { ConversationModel, RealtimeVoice, TurnDetectionType, VadEagerness, TranscriptionModel, SessionMode } from "./constants";
+
+export const REALTIME_VOICES = ["alloy", "echo", "shimmer", "ash", "ballad", "coral", "sage", "verse", "cedar", "marin"] as const;
+export const CONVERSATION_MODELS = ["gpt-realtime", "gpt-4o-realtime-preview-2025-06-03"] as const;
+export const TRANSCRIPTION_MODELS = ["gpt-4o-transcribe", "gpt-4o-mini-transcribe"] as const;
+export const TURN_DETECTION_TYPES = ["server_vad", "semantic_vad"] as const;
+export const CONNECTION_STATUSES = ["disconnected", "connecting", "connected"] as const;
+export const VAD_EAGERNESS = ["auto", "low", "medium", "high"] as const;
+export const SESSION_MODES = ["conversation", "transcription"] as const;
+
+export type RealtimeVoice = (typeof REALTIME_VOICES)[number];
+export type ConversationModel = (typeof CONVERSATION_MODELS)[number];
+export type TranscriptionModel = (typeof TRANSCRIPTION_MODELS)[number];
+export type TurnDetectionType = (typeof TURN_DETECTION_TYPES)[number];
+export type ConnectionStatus = (typeof CONNECTION_STATUSES)[number];
+export type VadEagerness = (typeof VAD_EAGERNESS)[number];
+export type SessionMode = (typeof SESSION_MODES)[number];
 
 export type ConnectOptions = {
   apiKey: string;
   conversationModel?: ConversationModel;
   transcriptionModel?: TranscriptionModel;
-  mode?: SessionMode; // conversation or transcription (default)
+  mode?: SessionMode;
   voice?: RealtimeVoice;
   instructions?: string;
   turnDetectionType?: TurnDetectionType;

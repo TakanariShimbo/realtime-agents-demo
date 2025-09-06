@@ -1,15 +1,6 @@
 import { tool } from "@openai/agents-realtime";
 import { runResponsesWebSearch } from "./respApi";
 
-export const nowTool = tool({
-  name: "now",
-  description: "Return the current date/time in Japan time (JST).",
-  parameters: { type: "object", properties: {}, required: [], additionalProperties: false },
-  async execute() {
-    return new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
-  },
-});
-
 export function makeResponsesWebSearchTool(apiKey: string) {
   return tool({
     name: "web_search",
