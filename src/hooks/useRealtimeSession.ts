@@ -1,78 +1,35 @@
 import { useEffect, useRef, useState } from "react";
-import type { ConnectionStatus, RealtimeSessionHandle, RealtimeConnectOptions } from "../lib/realtime";
-import { prepareRealtimeSession } from "../lib/realtime";
+import type { ConnectionStatus, RealtimeConnectOptions } from "../lib/realtime";
+import { connectRealtimeSession, type ChatMessage } from "../lib/realtimeSimple";
 
-export type ChatMessage = {
-  id: string;
-  role: "user" | "assistant";
-  text: string;
-};
-
-function extractTranscript(parts: any[]): string {
-  if (!Array.isArray(parts)) {
-    return "";
-  }
-  const tPart = parts.find((p: any) => typeof p?.transcript === "string" && p.transcript.trim());
-  if (tPart) {
-    return tPart.transcript.trim();
-  }
-  return "";
-}
+export type { ChatMessage };
 
 export function useRealtimeSession() {
   const [status, setStatus] = useState<ConnectionStatus>("disconnected");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const seenItemIds = useRef<Set<string>>(new Set());
-  const sessionRef = useRef<RealtimeSessionHandle | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const stopRef = useRef<null | (() => void)>(null);
 
-  useEffect(() => () => sessionRef.current?.session.close(), []);
+  useEffect(() => () => stopRef.current?.(), []);
 
   async function connect(p: RealtimeConnectOptions) {
-    try {
-      setStatus("connecting");
-      sessionRef.current?.session.close();
-      setMessages([]);
-      seenItemIds.current.clear();
-
-      const created: RealtimeSessionHandle = prepareRealtimeSession({ ...p, audioElement: audioRef.current });
-
-      created.session.on("error", (e: any) => {
-        console.error("Realtime session error:", e instanceof Error ? e : e?.error?.message ?? e?.message ?? JSON.stringify(e));
-      });
-
-      created.session.on("history_updated", (history: any[]) => {
-        for (const item of history) {
-          try {
-            if (!item || item.type !== "message") continue;
-            if (item.role !== "user" && item.role !== "assistant") continue;
-
-            const id = String(item.itemId ?? item.id ?? "");
-            if (!id || seenItemIds.current.has(id)) continue;
-
-            const parts = Array.isArray(item.content) ? item.content : [];
-            const text = extractTranscript(parts);
-            if (text) {
-              seenItemIds.current.add(id);
-              setMessages((prev) => [...prev, { id, role: item.role, text }]);
-            }
-          } catch {}
-        }
-      });
-
-      await created.connect();
-      sessionRef.current = created;
-      setStatus("connected");
-    } catch (e) {
-      console.error("Connect failed:", e);
-      setStatus("disconnected");
-    }
+    setStatus("connecting");
+    stopRef.current?.();
+    setMessages([]);
+    const { stop } = await connectRealtimeSession(
+      { ...p, audioElement: audioRef.current },
+      {
+        onStatus: (s) => setStatus(s),
+        onMessage: (m) => setMessages((prev) => prev.concat(m)),
+        onError: (e) => console.error("Realtime error:", e),
+      }
+    );
+    stopRef.current = stop;
   }
 
   function disconnect() {
-    sessionRef.current?.session.close();
-    sessionRef.current = null;
-    setStatus("disconnected");
+    stopRef.current?.();
+    stopRef.current = null;
   }
 
   return { status, messages, connect, disconnect, audioRef } as const;
