@@ -1,6 +1,7 @@
 import KeyForm, { type KeyFormValues } from "./KeyForm";
 import StatusDot from "./StatusDot";
 import { DEFAULT_INSTRUCTIONS } from "../lib/realtime";
+import type { SessionMode } from "../lib/realtime";
 import { Box, Flex, Heading, Field, Input, Button, HStack, Dialog } from "@chakra-ui/react";
 import useRealtimeSession from "../hooks/useRealtimeSession";
 import ChatLog from "./ChatLog";
@@ -10,7 +11,7 @@ import { isValidApiKey } from "../lib/validation";
 
 export default function VoiceClient() {
   const { status, messages, connect, disconnect, audioRef } = useRealtimeSession();
-  const [mode, setMode] = useState<"conversation" | "transcription">("transcription");
+  const [mode, setMode] = useState<SessionMode>("transcription");
   const [apiKey, setApiKey] = useState<string>("");
   const [apiKeyOpen, setApiKeyOpen] = useState<boolean>(false);
   const apiKeyValid = useMemo(() => isValidApiKey(apiKey), [apiKey]);
@@ -33,12 +34,12 @@ export default function VoiceClient() {
   async function handleConnect(v: KeyFormValues) {
     setLastForm(v);
     await connect({
+      sessionMode: mode,
       apiKey: v.apiKey,
-      conversationModel: v.conversationModel || undefined,
       transcriptionModel: v.transcriptionModel || undefined,
-      mode,
-      voice: v.voice || undefined,
+      conversationModel: v.conversationModel || undefined,
       instructions: v.instructions || undefined,
+      voice: v.voice || undefined,
       turnDetectionType: v.vadMode || undefined,
       silenceDurationMs: v.silenceDurationMs,
       prefixPaddingMs: v.prefixPaddingMs,
@@ -56,12 +57,12 @@ export default function VoiceClient() {
     setMode(nextMode);
     if (status === "connected" && lastForm) {
       await connect({
+        sessionMode: nextMode,
         apiKey: apiKey,
-        conversationModel: lastForm.conversationModel || undefined,
         transcriptionModel: lastForm.transcriptionModel || undefined,
-        mode: nextMode,
-        voice: lastForm.voice || undefined,
+        conversationModel: lastForm.conversationModel || undefined,
         instructions: lastForm.instructions || undefined,
+        voice: lastForm.voice || undefined,
         turnDetectionType: lastForm.vadMode || undefined,
         silenceDurationMs: lastForm.silenceDurationMs,
         prefixPaddingMs: lastForm.prefixPaddingMs,

@@ -26,7 +26,7 @@ export const DEFAULT_INSTRUCTIONS =
 
 export type TranscriptionConnectOptions = {
   apiKey: string;
-  transcriptionModel?: TranscriptionModel;
+  transcriptionModel: TranscriptionModel;
   turnDetectionType?: TurnDetectionType;
   silenceDurationMs?: number;
   prefixPaddingMs?: number;
@@ -37,6 +37,22 @@ export type TranscriptionConnectOptions = {
 };
 
 export type ConversationConnectOptions = {
+  apiKey: string;
+  transcriptionModel: TranscriptionModel;
+  conversationModel: ConversationModel;
+  instructions: string;
+  voice?: RealtimeVoice;
+  turnDetectionType?: TurnDetectionType;
+  silenceDurationMs?: number;
+  prefixPaddingMs?: number;
+  idleTimeoutMs?: number;
+  threshold?: number;
+  eagerness?: VadEagerness;
+  audioElement?: HTMLAudioElement | null;
+};
+
+export type RealtimeConnectOptions = {
+  sessionMode: SessionMode;
   apiKey: string;
   transcriptionModel?: TranscriptionModel;
   conversationModel?: ConversationModel;
@@ -185,17 +201,7 @@ function createSessionHandle(opts: { session: RealtimeSession; apiKey: string })
 }
 
 export function prepareTranscriptionSession(opts: TranscriptionConnectOptions) {
-  const {
-    apiKey,
-    transcriptionModel = DEFAULT_TRANSCRIPTION_MODEL,
-    turnDetectionType,
-    silenceDurationMs,
-    prefixPaddingMs,
-    idleTimeoutMs,
-    threshold,
-    eagerness,
-    audioElement,
-  } = opts;
+  const { apiKey, transcriptionModel, turnDetectionType, silenceDurationMs, prefixPaddingMs, idleTimeoutMs, threshold, eagerness, audioElement } = opts;
   const agent = createTranscriptionAgent();
   const conversationModel = DEFAULT_OPENAI_REALTIME_MODEL as string;
   const transport = createTransport({ model: conversationModel, audioElement });
@@ -217,9 +223,9 @@ export function prepareTranscriptionSession(opts: TranscriptionConnectOptions) {
 export function prepareConversationSession(opts: ConversationConnectOptions) {
   const {
     apiKey,
-    transcriptionModel = DEFAULT_TRANSCRIPTION_MODEL,
-    conversationModel = DEFAULT_CONVERSATION_MODEL,
-    instructions = DEFAULT_INSTRUCTIONS,
+    transcriptionModel,
+    conversationModel,
+    instructions,
     voice,
     turnDetectionType,
     silenceDurationMs,
@@ -246,4 +252,51 @@ export function prepareConversationSession(opts: ConversationConnectOptions) {
     eagerness,
   });
   return createSessionHandle({ session, apiKey });
+}
+
+export function prepareRealtimeSession(opts: RealtimeConnectOptions) {
+  const {
+    sessionMode,
+    apiKey,
+    transcriptionModel,
+    conversationModel,
+    instructions,
+    voice,
+    turnDetectionType,
+    silenceDurationMs,
+    prefixPaddingMs,
+    idleTimeoutMs,
+    threshold,
+    eagerness,
+    audioElement,
+  } = opts;
+
+  if (sessionMode === "transcription") {
+    return prepareTranscriptionSession({
+      apiKey,
+      transcriptionModel: transcriptionModel ?? DEFAULT_TRANSCRIPTION_MODEL,
+      turnDetectionType,
+      silenceDurationMs,
+      prefixPaddingMs,
+      idleTimeoutMs,
+      threshold,
+      eagerness,
+      audioElement,
+    });
+  } else {
+    return prepareConversationSession({
+      apiKey,
+      transcriptionModel: transcriptionModel ?? DEFAULT_TRANSCRIPTION_MODEL,
+      conversationModel: conversationModel ?? DEFAULT_CONVERSATION_MODEL,
+      instructions: instructions ?? DEFAULT_INSTRUCTIONS,
+      voice,
+      turnDetectionType,
+      silenceDurationMs,
+      prefixPaddingMs,
+      idleTimeoutMs,
+      threshold,
+      eagerness,
+      audioElement,
+    });
+  }
 }
