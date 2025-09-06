@@ -105,9 +105,9 @@ function createTransport(opts: { model: string; audioElement?: HTMLAudioElement 
   });
 }
 
-function buildAudioInput(opts: { transcriptionModel?: TranscriptionModel; turnDetection?: any }) {
+function buildAudioInput(opts: { transcriptionModel: TranscriptionModel; turnDetection?: any }) {
   const input: any = {
-    transcription: { language: "ja", ...(opts.transcriptionModel ? { model: opts.transcriptionModel } : {}) },
+    transcription: { model: opts.transcriptionModel, language: "ja" },
   };
   if (opts.turnDetection && Object.keys(opts.turnDetection).length > 0) input.turnDetection = opts.turnDetection;
   return input;
