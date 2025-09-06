@@ -1,5 +1,5 @@
-import type { ConnectionStatus, RealtimeConnectOptions, RealtimeSessionHandle } from "./realtime";
-import { prepareRealtimeSession } from "./realtime";
+import { type RealtimeConnectOptions, type RealtimeSessionHandle, prepareRealtimeSession } from "./prepareSession";
+import type { ConnectionStatus } from "./constants";
 
 export type ChatMessage = {
   id: string;
@@ -19,10 +19,7 @@ function extractTranscript(parts: any[]): string {
   return tPart ? String(tPart.transcript).trim() : "";
 }
 
-export async function connectRealtimeSession(
-  opts: RealtimeConnectOptions,
-  handlers: RealtimeHandlers = {}
-): Promise<{ handle: RealtimeSessionHandle; stop: () => void }> {
+export async function connectSession(opts: RealtimeConnectOptions, handlers: RealtimeHandlers = {}): Promise<{ handle: RealtimeSessionHandle; stop: () => void }> {
   const { onStatus, onMessage, onError } = handlers;
 
   const handle = prepareRealtimeSession(opts);

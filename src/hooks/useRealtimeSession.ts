@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import type { ConnectionStatus, RealtimeConnectOptions } from "../lib/realtime";
-import { connectRealtimeSession, type ChatMessage } from "../lib/realtimeSimple";
+import type { ConnectionStatus } from "../realtime/constants";
+import type { RealtimeConnectOptions } from "../realtime/prepareSession";
+import { connectSession, type ChatMessage } from "../realtime/connectSession";
 
 export type { ChatMessage };
 
@@ -16,7 +17,7 @@ export function useRealtimeSession() {
     setStatus("connecting");
     stopRef.current?.();
     setMessages([]);
-    const { stop } = await connectRealtimeSession(
+    const { stop } = await connectSession(
       { ...p, audioElement: audioRef.current },
       {
         onStatus: (s) => setStatus(s),

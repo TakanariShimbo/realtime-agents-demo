@@ -1,13 +1,13 @@
 import KeyForm, { type KeyFormValues } from "./KeyForm";
 import StatusDot from "./StatusDot";
-import { DEFAULT_INSTRUCTIONS } from "../lib/realtime";
-import type { SessionMode } from "../lib/realtime";
+import { DEFAULT_INSTRUCTIONS } from "../realtime/constants";
+import type { SessionMode } from "../realtime/constants";
 import { Box, Flex, Heading, Field, Input, Button, HStack, Dialog } from "@chakra-ui/react";
 import useRealtimeSession from "../hooks/useRealtimeSession";
 import ChatLog from "./ChatLog";
 import TranscriptionLog from "./TranscriptionLog";
 import { useMemo, useState } from "react";
-import { isValidApiKey } from "../lib/validation";
+import { isValidApiKey } from "../openai/apiKey";
 
 export default function VoiceClient() {
   const { status, messages, connect, disconnect, audioRef } = useRealtimeSession();

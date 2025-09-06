@@ -1,6 +1,5 @@
 import OpenAI from "openai";
-import { Agent, run } from "@openai/agents";
-import { OpenAIResponsesModel, webSearchTool } from "@openai/agents";
+import { Agent, OpenAIResponsesModel, run, webSearchTool } from "@openai/agents";
 
 export type WebSearchOptions = {
   apiKey: string;
@@ -12,18 +11,18 @@ export type WebSearchOptions = {
 const DEFAULT_MODEL = "gpt-4.1";
 const DEFAULT_INSTRUCTIONS = "Use the built-in web_search tool to answer the user's question. Keep the answer short and concise.";
 
-function buildAgent({ apiKey, model, instructions }: { apiKey: string; model: string; instructions: string }) {
-  const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
-  const responsesModel = new OpenAIResponsesModel(openai, model);
+function buildAgent(opts: { apiKey: string; model: string; instructions: string }) {
+  const openai = new OpenAI({ apiKey: opts.apiKey, dangerouslyAllowBrowser: true });
+  const responsesModel = new OpenAIResponsesModel(openai, opts.model);
   return new Agent({
     name: "ResponsesWebSearchAgent",
     model: responsesModel,
     tools: [webSearchTool()],
-    instructions,
+    instructions: opts.instructions,
   });
 }
 
-export async function runResponsesWebSearch({ apiKey, query, instructions = DEFAULT_INSTRUCTIONS, model = DEFAULT_MODEL }: WebSearchOptions): Promise<string> {
+export async function runWebSearchAgent({ apiKey, query, instructions = DEFAULT_INSTRUCTIONS, model = DEFAULT_MODEL }: WebSearchOptions): Promise<string> {
   const agent = buildAgent({ apiKey, model, instructions });
   const result = await run(agent, query);
   const out = result.finalOutput;
