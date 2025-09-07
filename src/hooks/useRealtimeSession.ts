@@ -3,8 +3,6 @@ import type { ConnectionStatus } from "../realtime";
 import type { RealtimeConnectOptions } from "../realtime";
 import { connectSession, type ChatMessage } from "../realtime";
 
-export type { ChatMessage };
-
 export function useRealtimeSession() {
   const [status, setStatus] = useState<ConnectionStatus>("disconnected");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
