@@ -1,5 +1,5 @@
 import { tool } from "@openai/agents-realtime";
-import { runWebSearchAgent } from "../responses/webSearchAgent";
+import { runWebSearchAgent } from "../responses";
 
 export function WebSearchAgentTool(opts: { apiKey: string }) {
   return tool({

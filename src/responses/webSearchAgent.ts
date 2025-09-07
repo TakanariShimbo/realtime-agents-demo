@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import { Agent, OpenAIResponsesModel, run, webSearchTool } from "@openai/agents";
 
-export type WebSearchOptions = {
+type WebSearchOptions = {
   apiKey: string;
   query: string;
   instructions?: string;

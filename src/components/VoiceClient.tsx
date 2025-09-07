@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Box, Flex, Heading, Field, Input, Button, HStack, Dialog } from "@chakra-ui/react";
 import { type SessionMode, DEFAULT_INSTRUCTIONS } from "../realtime/constants";
 import useRealtimeSession from "../hooks/useRealtimeSession";
-import { isValidApiKey } from "../openai/apiKey";
+import { isValidApiKey } from "../openai";
 import ChatLog from "./ChatLog";
 import TranscriptionLog from "./TranscriptionLog";
 import KeyForm, { type KeyFormValues } from "./KeyForm";
