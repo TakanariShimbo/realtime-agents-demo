@@ -1,5 +1,5 @@
 import { Heading, Stack, Text, VStack } from "@chakra-ui/react";
-import type { ChatMessage } from "../hooks/useRealtimeSession";
+import type { ChatMessage } from "../hooks";
 
 export default function TranscriptionLog(props: { messages: ChatMessage[]; emptyHint?: string }) {
   const userOnly = props.messages.filter((m) => m.role === "user");

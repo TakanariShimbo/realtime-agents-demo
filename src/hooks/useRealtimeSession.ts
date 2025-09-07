@@ -35,5 +35,3 @@ export function useRealtimeSession() {
 
   return { status, messages, connect, disconnect, audioRef } as const;
 }
-
-export default useRealtimeSession;

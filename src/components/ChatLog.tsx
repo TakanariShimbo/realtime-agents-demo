@@ -1,5 +1,5 @@
 import { Heading, Stack, Text, VStack } from "@chakra-ui/react";
-import type { ChatMessage } from "../hooks/useRealtimeSession";
+import type { ChatMessage } from "../hooks";
 
 export default function ChatLog(props: { messages: ChatMessage[]; emptyHint?: string }) {
   const emptyText = props.emptyHint ?? "No messages yet.";
