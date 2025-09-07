@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import type { ConnectionStatus } from "../realtime/constants";
-import type { RealtimeConnectOptions } from "../realtime/prepareSession";
-import { connectSession, type ChatMessage } from "../realtime/connectSession";
+import type { ConnectionStatus } from "../realtime";
+import type { RealtimeConnectOptions } from "../realtime";
+import { connectSession, type ChatMessage } from "../realtime";
 
 export type { ChatMessage };
 

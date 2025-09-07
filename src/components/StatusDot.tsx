@@ -1,5 +1,5 @@
 import { HStack, Circle, Text } from "@chakra-ui/react";
-import type { ConnectionStatus } from "../realtime/constants";
+import type { ConnectionStatus } from "../realtime";
 
 export default function StatusDot({ status }: { status: ConnectionStatus }) {
   const color = status === "connected" ? "green.400" : status === "connecting" ? "orange.400" : "gray.400";
